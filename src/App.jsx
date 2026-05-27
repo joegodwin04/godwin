@@ -1,0 +1,298 @@
+// App.jsx — TaskFlow Premium Productivity Platform
+import { useState, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import Sidebar from './components/Sidebar'
+import Dashboard from './components/Dashboard'
+import AddTodoForm from './components/AddTodoForm'
+import Filters from './components/Filters'
+import TodoList from './components/TodoList'
+import HabitTracker from './components/HabitTracker'
+import GoalTracker from './components/GoalTracker'
+import PomodoroTimer from './components/PomodoroTimer'
+import AnalyticsChart from './components/AnalyticsChart'
+import ActivityTimeline from './components/ActivityTimeline'
+import { useTodos } from './hooks/useTodos'
+import { useTheme } from './context/ThemeContext'
+import styles from './App.module.css'
+
+const VIEW_META = {
+  dashboard: { label: 'Dashboard',   icon: '⬡' },
+  tasks:     { label: 'My Tasks',    icon: '◈' },
+  habits:    { label: 'Habits',      icon: '🔥' },
+  goals:     { label: 'Goals',       icon: '🎯' },
+  focus:     { label: 'Focus Timer', icon: '⏱' },
+  analytics: { label: 'Analytics',   icon: '📈' },
+}
+
+export default function App() {
+  const [view, setView]           = useState('dashboard')
+  const [collapsed, setCollapsed] = useState(false)
+  const [search, setSearch]       = useState('')
+  const [notifOpen, setNotifOpen] = useState(false)
+  const { theme, toggle: toggleTheme } = useTheme()
+
+  const {
+    todos, filteredTodos, stats,
+    filter, setFilter,
+    categoryFilter, setCategoryFilter,
+    priorityFilter, setPriorityFilter,
+    searchQuery, setSearchQuery,
+    sortBy, setSortBy,
+    addTodo, toggleTodo, deleteTodo, updateTodo, clearCompleted,
+  } = useTodos()
+
+  const handleSetView = (v) => {
+    setView(v)
+    if (v === 'tasks') { /* keep current filter */ }
+  }
+
+  // Notifications derived from state
+  const notifications = useMemo(() => {
+    const notifs = []
+    if (stats.overdue > 0) notifs.push({ id: 'overdue', icon: '⚠️', text: `${stats.overdue} task${stats.overdue > 1 ? 's' : ''} overdue`, color: 'var(--rose)' })
+    if (stats.completed > 0 && stats.completionRate >= 80) notifs.push({ id: 'great', icon: '🏆', text: `${stats.completionRate}% completion rate — great work!`, color: 'var(--emerald)' })
+    if (stats.active === 0 && stats.total > 0) notifs.push({ id: 'done', icon: '🎉', text: 'All tasks complete! Take a break.', color: 'var(--violet-light)' })
+    if (stats.total === 0) notifs.push({ id: 'start', icon: '🚀', text: 'Add your first task to get started', color: 'var(--cyan)' })
+    return notifs
+  }, [stats])
+
+  const pageVariants = {
+    initial: { opacity: 0, y: 18 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.16, 1, 0.3, 1] } },
+    exit:    { opacity: 0, y: -12, transition: { duration: 0.2 } },
+  }
+
+  return (
+    <div className={styles.shell} data-theme={theme}>
+      {/* Ambient orbs */}
+      <div className={styles.orb1} />
+      <div className={styles.orb2} />
+
+      {/* Sidebar */}
+      <Sidebar view={view} setView={handleSetView} stats={stats} collapsed={collapsed} setCollapsed={setCollapsed} />
+
+      {/* Main */}
+      <motion.main
+        className={styles.main}
+        animate={{ marginLeft: collapsed ? 'var(--sidebar-w-collapsed)' : 'var(--sidebar-w)' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      >
+        {/* ── Top bar ── */}
+        <header className={styles.topbar}>
+          <div className={styles.topLeft}>
+            <motion.button className={styles.menuBtn}
+              onClick={() => setCollapsed(v => !v)}
+              whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
+              aria-label="Toggle sidebar"><MenuIcon /></motion.button>
+            <div className={styles.breadcrumb}>
+              <span className={styles.breadcrumbIcon}>{VIEW_META[view]?.icon}</span>
+              <span className={styles.breadcrumbText}>{VIEW_META[view]?.label}</span>
+            </div>
+          </div>
+
+          {/* Search bar */}
+          <div className={styles.searchWrap}>
+            <SearchIcon />
+            <input
+              className={styles.searchInput}
+              placeholder="Search tasks…"
+              value={searchQuery}
+              onChange={e => {
+                setSearchQuery(e.target.value)
+                if (e.target.value && view !== 'tasks') setView('tasks')
+              }}
+            />
+            {searchQuery && (
+              <button className={styles.searchClear} onClick={() => setSearchQuery('')}>✕</button>
+            )}
+          </div>
+
+          <div className={styles.topRight}>
+            {/* Stat pills */}
+            <div className={styles.statPills}>
+              <StatPill v={stats.active}    l="Active"  c="var(--cyan)" />
+              <StatPill v={stats.completed} l="Done"    c="var(--emerald)" />
+              {stats.overdue > 0 && <StatPill v={stats.overdue} l="Overdue" c="var(--rose)" pulse />}
+            </div>
+
+            {/* Progress bar */}
+            <div className={styles.progWrap}>
+              <span className={styles.progLabel}>{stats.completionRate}%</span>
+              <div className={styles.progTrack}>
+                <motion.div className={styles.progFill}
+                  animate={{ width: `${stats.completionRate}%` }}
+                  transition={{ duration: 0.8, ease: [0.16,1,0.3,1] }} />
+              </div>
+            </div>
+
+            {/* Notification bell */}
+            <div className={styles.notifWrap}>
+              <motion.button className={styles.iconBtn}
+                onClick={() => setNotifOpen(v => !v)}
+                whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <BellIcon />
+                {notifications.length > 0 && (
+                  <span className={styles.notifBadge}>{notifications.length}</span>
+                )}
+              </motion.button>
+              <AnimatePresence>
+                {notifOpen && (
+                  <>
+                    <motion.div className={styles.notifBackdrop}
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      onClick={() => setNotifOpen(false)} />
+                    <motion.div className={styles.notifPanel}
+                      initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                      transition={{ duration: 0.2 }}>
+                      <div className={styles.notifHeader}>Notifications</div>
+                      {notifications.map(n => (
+                        <div key={n.id} className={styles.notifItem}>
+                          <span style={{ fontSize: 18 }}>{n.icon}</span>
+                          <span className={styles.notifText} style={{ color: n.color }}>{n.text}</span>
+                        </div>
+                      ))}
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Theme toggle */}
+            <motion.button className={styles.iconBtn}
+              onClick={toggleTheme} title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+              whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </motion.button>
+
+            {/* Avatar */}
+            <div className={styles.avatar}>JG</div>
+          </div>
+        </header>
+
+        {/* ── Page Content ── */}
+        <div className={styles.content}>
+          <AnimatePresence mode="wait">
+            {view === 'dashboard' && (
+              <motion.div key="dashboard" {...pageVariants}>
+                <Dashboard stats={stats} todos={todos} onNavigate={handleSetView} />
+              </motion.div>
+            )}
+
+            {(view === 'tasks') && (
+              <motion.div key="tasks" className={styles.tasksView} {...pageVariants}>
+                <section className={styles.section}><AddTodoForm onAdd={addTodo} /></section>
+                <section className={styles.section}>
+                  <Filters
+                    filter={filter} setFilter={setFilter}
+                    categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter}
+                    priorityFilter={priorityFilter} setPriorityFilter={setPriorityFilter}
+                    searchQuery={searchQuery} setSearchQuery={setSearchQuery}
+                    sortBy={sortBy} setSortBy={setSortBy}
+                    filteredCount={filteredTodos.length}
+                    completedCount={stats.completed}
+                    onClearCompleted={clearCompleted}
+                  />
+                </section>
+                <section className={styles.section}>
+                  <TodoList todos={filteredTodos} filter={filter}
+                    onToggle={toggleTodo} onDelete={deleteTodo} onUpdate={updateTodo} />
+                </section>
+              </motion.div>
+            )}
+
+            {view === 'habits' && (
+              <motion.div key="habits" className={styles.singleView} {...pageVariants}>
+                <h2 className={styles.pageTitle}>🔥 Habit Tracker</h2>
+                <p className={styles.pageSub}>Build consistent habits and track your streaks every day.</p>
+                <HabitTracker />
+              </motion.div>
+            )}
+
+            {view === 'goals' && (
+              <motion.div key="goals" className={styles.singleView} {...pageVariants}>
+                <h2 className={styles.pageTitle}>🎯 Goals</h2>
+                <p className={styles.pageSub}>Set meaningful goals and track your progress toward them.</p>
+                <GoalTracker />
+              </motion.div>
+            )}
+
+            {view === 'focus' && (
+              <motion.div key="focus" className={styles.focusView} {...pageVariants}>
+                <h2 className={styles.pageTitle}>⏱ Focus Timer</h2>
+                <p className={styles.pageSub}>Use the Pomodoro technique to stay in the zone.</p>
+                <div className={styles.focusLayout}>
+                  <PomodoroTimer />
+                  <div className={styles.focusTips}>
+                    <div className={styles.tipCard}>
+                      <span className={styles.tipIcon}>🎯</span>
+                      <div>
+                        <div className={styles.tipTitle}>Focus Sessions</div>
+                        <div className={styles.tipText}>Work for 25 minutes, then take a 5-minute break. After 4 sessions, take a longer 15-minute break.</div>
+                      </div>
+                    </div>
+                    <div className={styles.tipCard}>
+                      <span className={styles.tipIcon}>📵</span>
+                      <div>
+                        <div className={styles.tipTitle}>Minimize Distractions</div>
+                        <div className={styles.tipText}>Put your phone away, close unnecessary tabs, and focus on a single task during each session.</div>
+                      </div>
+                    </div>
+                    <div className={styles.tipCard}>
+                      <span className={styles.tipIcon}>✅</span>
+                      <div>
+                        <div className={styles.tipTitle}>Track Progress</div>
+                        <div className={styles.tipText}>Each completed session adds to your daily count. Aim for at least 4 sessions a day.</div>
+                      </div>
+                    </div>
+                    <div className={styles.tipCard}>
+                      <span className={styles.tipIcon}>🌿</span>
+                      <div>
+                        <div className={styles.tipTitle}>Rest Matters</div>
+                        <div className={styles.tipText}>Use breaks to stretch, breathe, and recharge. Never skip your rest period.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {view === 'analytics' && (
+              <motion.div key="analytics" className={styles.singleView} {...pageVariants}>
+                <h2 className={styles.pageTitle}>📈 Analytics</h2>
+                <p className={styles.pageSub}>Insights into your productivity patterns over time.</p>
+                <div className={styles.analyticsGrid}>
+                  <AnalyticsChart todos={todos} stats={stats} />
+                  <ActivityTimeline todos={todos} />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Footer */}
+        <footer className={styles.footer}>
+          <span>TaskFlow</span>
+          <span className={styles.fDot}>·</span>
+          <span>Premium Productivity Suite</span>
+          <span className={styles.fDot}>·</span>
+          <span className={styles.fVer}>v3.0</span>
+        </footer>
+      </motion.main>
+    </div>
+  )
+}
+
+function StatPill({ v, l, c, pulse }) {
+  return (
+    <div className={`${styles.pill} ${pulse ? styles.pillPulse : ''}`} style={{ '--pc': c }}>
+      <span className={styles.pillVal}>{v}</span>
+      <span className={styles.pillLbl}>{l}</span>
+    </div>
+  )
+}
+
+function SearchIcon() { return <svg viewBox="0 0 20 20" fill="none" width="14" height="14" style={{ position:'absolute', left:12, color:'var(--text-400)' }}><circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.8"/><path d="M13.5 13.5L17 17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg> }
+function MenuIcon()   { return <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg> }
+function BellIcon()   { return <svg viewBox="0 0 20 20" fill="none" width="16" height="16"><path d="M10 2a6 6 0 016 6v3l1.5 2H2.5L4 11V8a6 6 0 016-6z" stroke="currentColor" strokeWidth="1.7"/><path d="M8 16a2 2 0 004 0" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg> }

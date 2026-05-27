@@ -1,0 +1,224 @@
+/* AddTodoForm.module.css — Premium task creation form */
+
+.wrap {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  backdrop-filter: blur(18px);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  overflow: hidden;
+}
+
+.wrap.expanded {
+  border-color: rgba(124,106,247,0.35);
+  box-shadow: 0 0 0 1px rgba(124,106,247,0.15), 0 0 40px rgba(124,106,247,0.12);
+}
+
+/* ── Main input row ── */
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+}
+
+.plusIcon {
+  width: 26px;
+  height: 26px;
+  color: var(--violet-light);
+  flex-shrink: 0;
+  opacity: 0.65;
+  transition: opacity 0.2s, transform 0.25s var(--ease-spring), color 0.2s;
+}
+.inputRow:focus-within .plusIcon {
+  opacity: 1;
+  transform: scale(1.12) rotate(90deg);
+  color: var(--violet-light);
+}
+.plusIcon svg { width: 100%; height: 100%; }
+
+.mainInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text-100);
+  font-weight: 400;
+}
+.mainInput::placeholder { color: var(--text-500); }
+
+.clearBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-400);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+.clearBtn:hover { color: var(--text-200); background: rgba(255,255,255,0.07); }
+.clearBtn svg { width: 14px; height: 14px; }
+
+/* ── Shake animation on empty submit ── */
+.shake { animation: shake 0.4s ease; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60%  { transform: translateX(-6px); }
+  40%, 80%  { transform: translateX(6px); }
+}
+
+/* ── Expanded options ── */
+.options {
+  border-top: 1px solid var(--border-subtle);
+  padding: 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: fadeUp 0.22s var(--ease-out) both;
+  background: rgba(0,0,0,0.12);
+}
+
+.optionGroup { display: flex; flex-direction: column; gap: 9px; }
+.optionLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-400);
+}
+
+.priorityBtns, .categoryBtns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.priorityBtn, .categoryBtn {
+  padding: 6px 14px;
+  border-radius: var(--r-full);
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-300);
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.22s var(--ease-spring);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.priorityBtn:hover {
+  background: var(--p-bg);
+  border-color: var(--p-color);
+  color: var(--p-color);
+  transform: translateY(-1px);
+}
+.priorityBtn.active {
+  background: var(--p-bg);
+  border-color: var(--p-color);
+  color: var(--p-color);
+  transform: scale(1.05);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--p-color) 35%, transparent);
+}
+
+.categoryBtn:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: var(--c-color);
+  color: var(--text-100);
+  transform: translateY(-1px);
+}
+.categoryBtn.active {
+  background: color-mix(in srgb, var(--c-color) 15%, transparent);
+  border-color: var(--c-color);
+  color: var(--text-100);
+  transform: scale(1.05);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--c-color) 30%, transparent);
+}
+
+.row2 { display: flex; gap: 16px; flex-wrap: wrap; }
+.grow { flex: 1; }
+
+.dateInput, .notesInput {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  padding: 9px 13px;
+  color: var(--text-100);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+.dateInput::-webkit-calendar-picker-indicator { filter: invert(0.65); cursor: pointer; }
+.dateInput:focus, .notesInput:focus {
+  border-color: var(--border-focus);
+  background: rgba(255,255,255,0.06);
+  box-shadow: 0 0 0 3px rgba(124,106,247,0.1);
+}
+.notesInput::placeholder { color: var(--text-500); }
+
+/* ── Action buttons ── */
+.actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+
+.cancelBtn {
+  padding: 9px 20px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-300);
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cancelBtn:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-100);
+  border-color: var(--border-default);
+}
+
+.addBtn {
+  padding: 9px 22px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: var(--grad-violet);
+  color: white;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.22s var(--ease-spring);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  box-shadow: 0 4px 18px rgba(124,106,247,0.38), inset 0 1px 0 rgba(255,255,255,0.18);
+  position: relative;
+  overflow: hidden;
+}
+.addBtn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.addBtn:hover::before { opacity: 1; }
+.addBtn svg { width: 15px; height: 15px; }
+.addBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(124,106,247,0.55);
+}
+.addBtn:active:not(:disabled) { transform: translateY(0); }
+.addBtn:disabled { opacity: 0.38; cursor: not-allowed; }

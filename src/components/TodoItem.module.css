@@ -1,0 +1,218 @@
+/* TodoItem.module.css — Premium glassmorphism task cards */
+
+.card {
+  position: relative;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  cursor: default;
+  backdrop-filter: blur(16px);
+}
+.card:hover {
+  border-color: var(--border-default);
+}
+
+/* Shimmer top edge */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1) 50%, transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.card:hover::before { opacity: 1; }
+
+.overdueCard { border-color: rgba(244,63,94,0.22) !important; }
+.overdueCard:hover { border-color: rgba(244,63,94,0.42) !important; }
+
+.done { opacity: 0.48; }
+.done:hover { opacity: 0.72; }
+
+/* ── Priority colour stripe ── */
+.stripe {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--p, var(--violet));
+  box-shadow: 2px 0 14px color-mix(in srgb, var(--p, var(--violet)) 55%, transparent);
+}
+
+/* ── Main row ── */
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 15px 14px 20px;
+  position: relative;
+}
+
+/* ── Checkbox ── */
+.checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  border: 2px solid var(--border-strong);
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.checkbox:hover {
+  border-color: var(--violet-light);
+  background: var(--violet-dim);
+  box-shadow: 0 0 12px var(--violet-glow);
+}
+.checked {
+  background: linear-gradient(135deg, #7c6af7, #a78bfa) !important;
+  border-color: transparent !important;
+  box-shadow: 0 0 18px rgba(124,106,247,0.5) !important;
+}
+
+/* ── Completion burst ── */
+.burst {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124,106,247,0.65), transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Content ── */
+.content {
+  flex: 1;
+  cursor: pointer;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-100);
+  line-height: 1.55;
+  word-break: break-word;
+  transition: color 0.2s;
+}
+.done .text {
+  text-decoration: line-through;
+  text-decoration-color: rgba(255,255,255,0.25);
+  color: var(--text-400);
+}
+
+.editInput {
+  width: 100%;
+  background: var(--bg-glass-md);
+  border: 1px solid var(--border-focus);
+  border-radius: var(--r-xs);
+  padding: 5px 10px;
+  color: var(--text-100);
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 500;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124,106,247,0.12);
+}
+
+/* ── Badges ── */
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.catBadge, .prioBadge, .dateBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px;
+  border-radius: var(--r-full);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.catBadge {
+  background: color-mix(in srgb, var(--c) 12%, transparent);
+  color: var(--c);
+  border: 1px solid color-mix(in srgb, var(--c) 22%, transparent);
+}
+.prioBadge {
+  background: color-mix(in srgb, var(--p) 10%, transparent);
+  color: var(--p);
+  border: 1px solid color-mix(in srgb, var(--p) 20%, transparent);
+}
+.dateBadge  { background: rgba(255,255,255,0.04); color: var(--text-300); border: 1px solid var(--border-subtle); }
+.overdueBadge { background: var(--rose-dim); color: var(--rose); border-color: rgba(244,63,94,0.28); }
+.todayBadge   { background: var(--amber-dim); color: var(--amber); border-color: rgba(245,158,11,0.28); }
+
+/* ── Actions (appear on hover) ── */
+.actions {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.card:hover .actions { opacity: 1; }
+
+.actionBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-300);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.actionBtn:hover {
+  color: var(--text-200);
+  background: var(--bg-glass-md);
+  border-color: var(--border-default);
+}
+.delBtn { color: var(--rose) !important; border-color: rgba(244,63,94,0.22) !important; }
+.delBtn:hover { color: var(--rose) !important; box-shadow: 0 0 10px var(--rose-glow); }
+
+/* ── Expanded panel ── */
+.expandInner {
+  border-top: 1px solid var(--border-subtle);
+  padding: 13px 20px;
+  background: rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.notesRow { display: flex; gap: 8px; align-items: flex-start; }
+.notesIcon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+.notesText { font-size: 12.5px; color: var(--text-300); line-height: 1.55; }
+.completedAt { font-size: 11px; color: var(--emerald); }
+
+.inlineRow { display: flex; align-items: center; gap: 10px; }
+.inlineLabel { font-size: 11px; color: var(--text-400); font-weight: 600; white-space: nowrap; }
+.inlineDate {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-xs);
+  padding: 5px 10px;
+  color: var(--text-200);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+  cursor: pointer;
+}
+.inlineDate::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+.inlineDate:focus { border-color: var(--border-focus); }

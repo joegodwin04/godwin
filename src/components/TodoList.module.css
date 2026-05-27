@@ -1,0 +1,42 @@
+/* TodoList.module.css — Premium list container */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Empty state ── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  background: var(--bg-glass);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--r-xl);
+  text-align: center;
+  backdrop-filter: blur(12px);
+}
+
+.emptyIcon {
+  font-size: 54px;
+  margin-bottom: 18px;
+  filter: drop-shadow(0 4px 14px rgba(124,106,247,0.3));
+}
+
+.emptyTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-200);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.emptySub {
+  font-size: 13.5px;
+  color: var(--text-400);
+  max-width: 280px;
+  line-height: 1.6;
+}

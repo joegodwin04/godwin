@@ -1,0 +1,156 @@
+/* Sidebar.module.css — Premium glassmorphism sidebar v2 */
+
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(5, 5, 16, 0.72);
+  z-index: 40; backdrop-filter: blur(6px);
+}
+@media (max-width: 768px) { .overlay { display: block; } }
+
+.sidebar {
+  position: fixed; top: 0; left: 0; height: 100vh;
+  background: rgba(8, 8, 20, 0.92);
+  backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
+  border-right: 1px solid var(--border-subtle);
+  display: flex; flex-direction: column;
+  z-index: 50; overflow: hidden;
+  box-shadow: 4px 0 60px rgba(0,0,0,0.55), inset -1px 0 0 rgba(255,255,255,0.04), 0 0 60px rgba(124,106,247,0.07);
+}
+.sidebar::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(124,106,247,0.06) 0%, rgba(124,106,247,0.02) 40%, rgba(236,72,153,0.03) 100%);
+  pointer-events: none;
+}
+
+/* Brand */
+.brand {
+  display: flex; align-items: center; gap: 12px;
+  padding: 18px 14px;
+  flex-shrink: 0; position: relative;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.logo {
+  width: 36px; height: 36px; flex-shrink: 0; cursor: pointer;
+  filter: drop-shadow(0 0 14px rgba(124,106,247,0.5));
+  transition: filter 0.3s;
+}
+.logo:hover { filter: drop-shadow(0 0 22px rgba(167,139,250,0.7)); }
+.brandText { flex: 1; min-width: 0; overflow: hidden; }
+.brandName {
+  display: block; font-size: 15px; font-weight: 900;
+  background: linear-gradient(135deg, #f5f4ff, #a78bfa 60%, #22d3ee);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  white-space: nowrap; line-height: 1.2; letter-spacing: -0.02em;
+}
+.brandSub {
+  display: block; font-size: 10px; color: var(--text-400);
+  font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; margin-top: 2px;
+}
+.collapseBtn {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-glass); color: var(--text-300);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s, color 0.2s; flex-shrink: 0;
+}
+.collapseBtn:hover { background: var(--bg-glass-md); border-color: var(--border-default); color: var(--violet-light); }
+
+.divider { height: 1px; background: var(--border-subtle); flex-shrink: 0; }
+
+/* Nav */
+.nav {
+  flex: 1; padding: 12px 10px;
+  display: flex; flex-direction: column; gap: 2px;
+  overflow-y: auto; overflow-x: hidden;
+}
+.navSection {
+  font-size: 9.5px; font-weight: 700; color: var(--text-500);
+  letter-spacing: 0.1em; padding: 4px 10px 2px;
+  display: block; white-space: nowrap;
+}
+.navItem {
+  position: relative; display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: var(--r-md);
+  border: none; background: transparent; color: var(--text-300);
+  cursor: pointer; font-size: 13px; font-family: inherit; font-weight: 500;
+  text-align: left; width: 100%; white-space: nowrap; overflow: hidden;
+  transition: color 0.2s;
+}
+.navItem:hover { color: var(--text-200); background: var(--bg-glass); }
+.navActive { color: var(--text-100) !important; }
+
+.activeIndicator {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(124,106,247,0.2), rgba(167,139,250,0.08));
+  border-radius: var(--r-md);
+  border: 1px solid rgba(124,106,247,0.28);
+  z-index: -1;
+}
+.navIcon {
+  width: 34px; height: 34px; border-radius: var(--r-sm);
+  background: var(--bg-glass);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.navIconActive { background: var(--violet-dim) !important; color: var(--violet-light); box-shadow: 0 0 18px var(--violet-glow); }
+.navLabel { flex: 1; }
+.badge {
+  background: var(--grad-violet); color: white;
+  font-size: 10px; font-weight: 700; padding: 2px 7px;
+  border-radius: var(--r-full); min-width: 20px; text-align: center;
+  box-shadow: 0 0 12px var(--violet-glow); flex-shrink: 0;
+}
+
+/* Bottom */
+.bottom {
+  padding: 0 0 0;
+  display: flex; flex-direction: column; gap: 0;
+  flex-shrink: 0;
+}
+.progressCard {
+  margin: 8px 10px;
+  padding: 12px;
+  background: rgba(124,106,247,0.06);
+  border: 1px solid rgba(124,106,247,0.14);
+  border-radius: var(--r-md);
+}
+.progressTop { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.progressLabel { font-size: 10px; color: var(--text-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.progressPct { font-size: 11px; color: var(--violet-light); font-weight: 700; }
+.progressTrack { height: 5px; background: rgba(255,255,255,0.06); border-radius: var(--r-full); overflow: hidden; margin-bottom: 6px; }
+.progressFill { height: 100%; background: var(--grad-violet); border-radius: var(--r-full); box-shadow: 0 0 10px var(--violet-glow); }
+.progressMeta { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-400); }
+
+.themeBtn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px;
+  border: none; background: transparent; cursor: pointer;
+  width: 100%; text-align: left;
+  border-top: 1px solid var(--border-subtle);
+  transition: background 0.2s;
+}
+.themeBtn:hover { background: var(--bg-glass); }
+.themeIcon { font-size: 16px; width: 34px; text-align: center; flex-shrink: 0; }
+.themeLabel { font-size: 12.5px; color: var(--text-300); font-weight: 500; white-space: nowrap; }
+
+.userRow {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--border-subtle);
+  overflow: hidden; cursor: pointer;
+  transition: background 0.2s;
+}
+.userRow:hover { background: var(--bg-glass); }
+.avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--grad-violet);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: white; flex-shrink: 0;
+  box-shadow: 0 0 18px var(--violet-glow); border: 2px solid rgba(167,139,250,0.3);
+}
+.userInfo { overflow: hidden; }
+.userName { display: block; font-size: 13px; font-weight: 700; color: var(--text-200); white-space: nowrap; letter-spacing: -0.01em; }
+.userRole { display: block; font-size: 10px; color: var(--violet-light); font-weight: 600; white-space: nowrap; }

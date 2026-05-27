@@ -1,0 +1,229 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 7, 15, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 150;
+}
+
+.modal {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 560px;
+  background: rgba(13, 13, 26, 0.97);
+  border: 1px solid var(--border-default);
+  border-bottom: none;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  z-index: 160;
+  overflow: hidden;
+  box-shadow: 0 -20px 80px rgba(124,106,247,0.18), var(--shadow-lg);
+}
+
+/* Pull indicator */
+.modal::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 4px;
+  background: var(--border-default);
+  border-radius: var(--r-full);
+  margin: 12px auto 0;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.modalTitle { display: flex; align-items: center; gap: 14px; }
+.modalIcon { font-size: 28px; animation: float 3s ease-in-out infinite; }
+.modalHeading {
+  font-size: 18px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--text-100), var(--violet-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.modalSub { font-size: 12px; color: var(--text-400); margin-top: 2px; }
+
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-default);
+  background: var(--bg-glass);
+  color: var(--text-300);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.closeBtn:hover { background: var(--bg-glass-md); color: var(--text-100); }
+
+/* Form */
+.form { padding: 20px 24px 28px; display: flex; flex-direction: column; gap: 18px; }
+
+.inputWrap { position: relative; }
+.mainInput {
+  width: 100%;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-md);
+  padding: 14px 60px 14px 18px;
+  color: var(--text-100);
+  font-size: 15px;
+  font-family: inherit;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.mainInput:focus {
+  border-color: var(--border-focus);
+  background: var(--bg-glass-md);
+  box-shadow: 0 0 0 3px rgba(124,106,247,0.12), 0 0 24px rgba(124,106,247,0.1);
+}
+.mainInput::placeholder { color: var(--text-400); }
+.charCount {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: var(--text-400);
+}
+
+.section { display: flex; flex-direction: column; gap: 10px; }
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-400);
+}
+
+/* Priority */
+.priorityGrid { display: flex; gap: 8px; }
+.prioBtn {
+  flex: 1;
+  padding: 10px 8px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255,255,255,0.025);
+  color: var(--text-300);
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.prioBtn:hover { background: var(--pb, rgba(255,255,255,0.04)); border-color: var(--p); color: var(--p); }
+.prioBtnActive {
+  background: var(--pb) !important;
+  border-color: var(--p) !important;
+  color: var(--p) !important;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--p) 30%, transparent);
+}
+.prioIcon { font-size: 20px; }
+
+/* Category */
+.categoryGrid { display: flex; gap: 6px; flex-wrap: wrap; }
+.catBtn {
+  padding: 7px 14px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255,255,255,0.025);
+  color: var(--text-300);
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.catBtn:hover { border-color: var(--c); background: color-mix(in srgb, var(--c) 10%, transparent); color: var(--text-200); }
+.catBtnActive {
+  border-color: var(--c) !important;
+  background: color-mix(in srgb, var(--c) 14%, transparent) !important;
+  color: var(--text-100) !important;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--c) 25%, transparent);
+}
+
+/* Date + Notes */
+.row2 { display: flex; gap: 14px; flex-wrap: wrap; }
+.dateInput, .notesInput {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-sm);
+  padding: 10px 14px;
+  color: var(--text-100);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  width: 100%;
+}
+.dateInput::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+.dateInput:focus, .notesInput:focus {
+  border-color: var(--border-focus);
+  background: var(--bg-glass-md);
+}
+.notesInput::placeholder { color: var(--text-400); }
+
+/* Actions */
+.actions { display: flex; gap: 10px; justify-content: flex-end; padding-top: 4px; }
+.cancelBtn {
+  padding: 11px 22px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-300);
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.cancelBtn:hover { background: var(--bg-glass); color: var(--text-100); }
+
+.submitBtn {
+  padding: 11px 24px;
+  border-radius: var(--r-md);
+  border: none;
+  background: linear-gradient(135deg, #7c6af7, #a78bfa);
+  color: white;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(124,106,247,0.4);
+  transition: opacity 0.2s;
+}
+.submitBtn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+@media (min-width: 640px) {
+  .modal {
+    top: 50%;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    border-radius: var(--r-xl);
+    border-bottom: 1px solid var(--border-default);
+  }
+  .modal::before { display: none; }
+}
