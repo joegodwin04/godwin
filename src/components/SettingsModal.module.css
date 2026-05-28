@@ -1,0 +1,773 @@
+/* SettingsModal.module.css — Ultra-Premium SaaS Command Center — Light + Dark */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 2, 9, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.28s var(--ease-out) both;
+}
+
+.modal {
+  width: 100%;
+  max-width: 820px;
+  height: 600px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-xl);
+  z-index: 210;
+  overflow: hidden;
+  box-shadow: 0 30px 100px rgba(3, 2, 9, 0.7), var(--shadow-glow);
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  animation: fadeInScale 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ============================================================
+   Sidebar Navigation (Left Pane)
+   ============================================================ */
+.sidebar {
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-subtle);
+  padding: 24px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sidebarTop {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  margin-bottom: 12px;
+}
+
+.brandLogo {
+  width: 26px; height: 26px;
+  border-radius: var(--r-xs);
+  background: var(--grad-violet);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-glow);
+}
+
+.brandText {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: var(--grad-text-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tabList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tabItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: var(--r-md);
+  color: var(--text-300);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+
+.tabItem:hover {
+  background: var(--bg-glass);
+  color: var(--text-100);
+}
+
+.tabActive {
+  color: var(--text-100);
+}
+
+.activeIndicator {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(124,106,247,0.12), rgba(167,139,250,0.03));
+  border-radius: var(--r-md);
+  border: 1px solid rgba(124,106,247,0.22);
+  border-left: 3.5px solid var(--violet);
+  z-index: -1;
+}
+
+.tabIcon {
+  font-size: 15px;
+  opacity: 0.8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+}
+
+.sidebarBottom {
+  padding: 0 10px;
+}
+
+.proBadge {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--violet-bright);
+  background: var(--violet-dim);
+  border: 1px solid rgba(124,106,247,0.3);
+  padding: 4px 10px;
+  border-radius: var(--r-full);
+  text-align: center;
+  display: block;
+}
+
+/* ============================================================
+   Content Viewport (Right Pane)
+   ============================================================ */
+.viewport {
+  padding: clamp(24px, 4vw, 36px);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.viewportHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 16px;
+  margin-bottom: 8px;
+}
+
+.headerTitle {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--text-100);
+  letter-spacing: -0.025em;
+}
+
+.headerSub {
+  font-size: 12.5px;
+  color: var(--text-300);
+  margin-top: 4px;
+}
+
+.closeBtn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-default);
+  background: var(--bg-glass);
+  color: var(--text-300);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition);
+}
+
+.closeBtn:hover {
+  background: var(--bg-glass-md);
+  color: var(--text-100);
+  transform: rotate(90deg);
+}
+
+/* ============================================================
+   Tab Contents: PROFILE DASHBOARD
+   ============================================================ */
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  margin-bottom: 8px;
+}
+
+.profileAvatar {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--grad-violet);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 800; color: white;
+  box-shadow: var(--shadow-glow);
+  border: 3px solid rgba(167,139,250,0.3);
+}
+
+.profileMeta h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-100);
+  letter-spacing: -0.015em;
+}
+
+.profileMeta p {
+  font-size: 12px;
+  color: var(--text-300);
+  margin-top: 4px;
+}
+
+.bioSection {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-200);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  font-style: italic;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.metricItem {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-lg);
+  padding: 16px 14px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.metricItem:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+.metricVal {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--violet-bright);
+  letter-spacing: -0.03em;
+}
+
+.metricLbl {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-400);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+}
+
+/* ============================================================
+   Tab Contents: EDIT PROFILE Form Controls
+   ============================================================ */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-200);
+  letter-spacing: 0.02em;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text-100);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-md);
+  transition: var(--transition);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  background: var(--bg-glass-md);
+  box-shadow: 0 0 0 3px var(--violet-glow);
+}
+
+.textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.saveBtn {
+  background: var(--grad-violet);
+  color: white;
+  border: none;
+  border-radius: var(--r-md);
+  padding: 12px 20px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  align-self: flex-end;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-bounce);
+  margin-top: 10px;
+}
+
+.saveBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+/* ============================================================
+   Tab Contents: NOTIFICATION Toggles
+   ============================================================ */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-lg);
+  transition: var(--transition);
+}
+
+.toggleRow:hover {
+  border-color: var(--border-strong);
+}
+
+.toggleMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.toggleLabel {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-100);
+}
+
+.toggleSub {
+  font-size: 11px;
+  color: var(--text-300);
+}
+
+/* Custom switch button */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: var(--border-strong);
+  transition: .3s;
+  border-radius: 34px;
+}
+
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--violet);
+}
+
+input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+/* ============================================================
+   Tab Contents: UPGRADE ACCOUNT pricing grid
+   ============================================================ */
+.pricingGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.priceCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-xl);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.priceCardPopular {
+  border-color: var(--violet);
+  box-shadow: var(--shadow-glow);
+}
+
+.popularBadge {
+  position: absolute;
+  top: 12px; right: 12px;
+  font-size: 9px; font-weight: 800;
+  background: var(--violet-dim);
+  border: 1px solid rgba(124,106,247,0.3);
+  color: var(--violet-bright);
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  text-transform: uppercase;
+}
+
+.cardHead {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.planName {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-100);
+}
+
+.planPrice {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--text-100);
+  letter-spacing: -0.04em;
+}
+
+.planPrice span {
+  font-size: 12px;
+  color: var(--text-300);
+  font-weight: 500;
+}
+
+.planDesc {
+  font-size: 12px;
+  color: var(--text-300);
+  line-height: 1.5;
+}
+
+.featuresList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px 0;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-200);
+}
+
+.featureCheck {
+  color: var(--violet-bright);
+  font-weight: 700;
+}
+
+.pricingCta {
+  width: 100%;
+  background: var(--bg-glass-strong);
+  color: var(--text-100);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-md);
+  padding: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-bounce);
+}
+
+.pricingCtaActive {
+  background: var(--grad-violet);
+  color: white;
+  border: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.pricingCta:hover {
+  transform: translateY(-2px);
+}
+
+.pricingCtaActive:hover {
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+/* ============================================================
+   Tab Contents: REPORTS
+   ============================================================ */
+.reportCard {
+  background: linear-gradient(135deg, rgba(124, 106, 247, 0.05), rgba(34, 211, 238, 0.04)), var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-xl);
+  padding: 32px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.reportIcon {
+  font-size: 46px;
+  filter: drop-shadow(0 8px 16px var(--violet-glow));
+}
+
+.reportTitle {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-100);
+  letter-spacing: -0.015em;
+}
+
+.reportDesc {
+  font-size: 12.5px;
+  color: var(--text-300);
+  max-width: 420px;
+  line-height: 1.6;
+}
+
+.reportCta {
+  background: var(--grad-violet);
+  color: white;
+  border: none;
+  border-radius: var(--r-md);
+  padding: 12px 24px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-bounce);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reportCta:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+/* ============================================================
+   ★ LIGHT THEME SUPPORT OVERRIDES ★
+   ============================================================ */
+:global([data-theme="light"]) .modal {
+  background: #ffffff;
+  border-color: #d8d4ef;
+  box-shadow: 0 30px 80px rgba(124, 106, 247, 0.1), var(--shadow-lg);
+}
+:global([data-theme="light"]) .sidebar {
+  background: #fcfbfe;
+  border-right-color: #ebe8f8;
+}
+:global([data-theme="light"]) .brandText {
+  background: linear-gradient(135deg, #0f0e2a, #6561a0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+:global([data-theme="light"]) .tabItem {
+  color: #6561a0;
+}
+:global([data-theme="light"]) .tabItem:hover {
+  background: #f0eef8;
+  color: #0f0e2a;
+}
+:global([data-theme="light"]) .tabActive {
+  color: #0f0e2a;
+}
+:global([data-theme="light"]) .activeIndicator {
+  background: linear-gradient(135deg, rgba(124,106,247,0.06), rgba(167,139,250,0.03));
+  border-color: rgba(124,106,247,0.14);
+}
+:global([data-theme="light"]) .viewportHeader {
+  border-bottom-color: #ebe8f8;
+}
+:global([data-theme="light"]) .closeBtn {
+  border-color: #d8d4ef;
+  background: #ffffff;
+  color: #6561a0;
+}
+:global([data-theme="light"]) .closeBtn:hover {
+  background: #f8f7fe;
+  color: #0f0e2a;
+}
+:global([data-theme="light"]) .proBadge {
+  background: rgba(124, 106, 247, 0.08);
+  border-color: rgba(124, 106, 247, 0.22);
+  color: #5b4ce2;
+}
+:global([data-theme="light"]) .profileCard {
+  background: #ffffff;
+  border-color: #d8d4ef;
+}
+:global([data-theme="light"]) .profileAvatar {
+  border-color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+:global([data-theme="light"]) .bioSection {
+  background: #f8f7fe;
+  border-color: #ebe8f8;
+  color: #3c3960;
+}
+:global([data-theme="light"]) .metricItem {
+  background: #ffffff;
+  border-color: #d8d4ef;
+}
+:global([data-theme="light"]) .metricItem:hover {
+  border-color: #b8b3e4;
+}
+:global([data-theme="light"]) .metricVal {
+  color: #7c6af7;
+}
+:global([data-theme="light"]) .input {
+  background: #ffffff;
+  border-color: #d8d4ef;
+  color: #0f0e2a;
+}
+:global([data-theme="light"]) .input:focus {
+  background: #ffffff;
+  border-color: var(--border-focus);
+}
+:global([data-theme="light"]) .toggleRow {
+  background: #ffffff;
+  border-color: #d8d4ef;
+}
+:global([data-theme="light"]) .toggleRow:hover {
+  border-color: #b8b3e4;
+}
+:global([data-theme="light"]) .toggleSub {
+  color: #6561a0;
+}
+:global([data-theme="light"]) .switch .slider {
+  background-color: #d8d4ef;
+}
+:global([data-theme="light"]) .pricingGrid .priceCard {
+  background: #ffffff;
+  border-color: #d8d4ef;
+}
+:global([data-theme="light"]) .priceCardPopular {
+  border-color: var(--violet);
+}
+:global([data-theme="light"]) .planDesc {
+  color: #6561a0;
+}
+:global([data-theme="light"]) .pricingCta {
+  background: #f8f7fe;
+  border-color: #d8d4ef;
+  color: #3c3960;
+}
+:global([data-theme="light"]) .pricingCtaActive {
+  background: var(--grad-violet);
+  color: white;
+}
+:global([data-theme="light"]) .featureItem {
+  color: #3c3960;
+}
+:global([data-theme="light"]) .reportCard {
+  background: linear-gradient(135deg, rgba(124, 106, 247, 0.04), rgba(34, 211, 238, 0.03)), #ffffff;
+  border-color: #d8d4ef;
+}
+:global([data-theme="light"]) .reportDesc {
+  color: #6561a0;
+}
+
+/* ============================================================
+   RESPONSIVENESS & BREAKPOINTS
+   ============================================================ */
+@media (max-width: 768px) {
+  .modal {
+    grid-template-columns: 1fr;
+    height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .sidebar {
+    padding: 16px;
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  
+  .brand {
+    margin-bottom: 8px;
+  }
+  
+  .tabList {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+  
+  .tabItem {
+    white-space: nowrap;
+    padding: 8px 12px;
+  }
+  
+  .sidebarBottom {
+    display: none; /* Hide bottom badge on mobile settings sidebar */
+  }
+  
+  .viewport {
+    padding: 20px 16px;
+    height: auto;
+    overflow-y: visible;
+  }
+  
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .pricingGrid {
+    grid-template-columns: 1fr;
+  }
+}

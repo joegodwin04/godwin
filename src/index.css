@@ -14,16 +14,17 @@
 
 :root {
   /* ── Core backgrounds (dark) ── */
-  --bg-base:         #050510;
-  --bg-surface:      #080818;
-  --bg-elevated:     #0e0e24;
-  --bg-card:         #10102a;
-  --bg-glass:        rgba(255, 255, 255, 0.03);
-  --bg-glass-md:     rgba(255, 255, 255, 0.055);
-  --bg-glass-strong: rgba(255, 255, 255, 0.09);
-  --bg-overlay:      rgba(5, 5, 16, 0.88);
-  --bg-input:        rgba(255, 255, 255, 0.06);
-  --bg-form:         rgba(255, 255, 255, 0.04);
+  --bg-base:         #030209;    /* Ultra deep pitch dark */
+  --bg-surface:      #060511;    /* Slate purple surface */
+  --bg-elevated:     #0b0a1d;    /* Frosted glass/modal bg */
+  --bg-card:         #0d0c23;    /* Distinct elevated card bg */
+  --bg-glass:        rgba(255, 255, 255, 0.025);
+  --bg-glass-md:     rgba(255, 255, 255, 0.05);
+  --bg-glass-strong: rgba(255, 255, 255, 0.08);
+  --bg-overlay:      rgba(3, 2, 9, 0.9);
+  --bg-input:        rgba(255, 255, 255, 0.04);
+  --bg-form:         rgba(255, 255, 255, 0.03);
+
 
   /* ── Accent palette ── */
   --violet:          #7c6af7;

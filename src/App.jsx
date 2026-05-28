@@ -1,5 +1,5 @@
 // App.jsx — TaskFlow Premium Productivity Platform
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Sidebar from './components/Sidebar'
 import Dashboard from './components/Dashboard'
@@ -13,6 +13,8 @@ import AnalyticsChart from './components/AnalyticsChart'
 import ActivityTimeline from './components/ActivityTimeline'
 import { useTodos } from './hooks/useTodos'
 import { useTheme } from './context/ThemeContext'
+import Auth from './components/Auth'
+import SettingsModal from './components/SettingsModal'
 import styles from './App.module.css'
 
 const VIEW_META = {
@@ -27,9 +29,30 @@ const VIEW_META = {
 export default function App() {
   const [view, setView]           = useState('dashboard')
   const [collapsed, setCollapsed] = useState(false)
-  const [search, setSearch]       = useState('')
   const [notifOpen, setNotifOpen] = useState(false)
   const { theme, toggle: toggleTheme } = useTheme()
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [activeSettingsTab, setActiveSettingsTab] = useState(null)
+  const [toast, setToast] = useState(null)
+
+  const showToast = useCallback((message, type = 'success') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3000)
+  }, [])
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('tf_user')
+    return saved ? JSON.parse(saved) : null
+  })
+
+  const handleLoginSuccess = (userData) => {
+    setUser(userData)
+    localStorage.setItem('tf_user', JSON.stringify(userData))
+  }
+
+  const handleLogout = () => {
+    setUser(null)
+    localStorage.removeItem('tf_user')
+  }
 
   const {
     todos, filteredTodos, stats,
@@ -62,14 +85,26 @@ export default function App() {
     exit:    { opacity: 0, y: -12, transition: { duration: 0.2 } },
   }
 
+  if (!user) {
+    return <Auth onLoginSuccess={handleLoginSuccess} />
+  }
+
   return (
-    <div className={styles.shell} data-theme={theme}>
+    <div key={user?.email || 'guest'} className={styles.shell} data-theme={theme}>
       {/* Ambient orbs */}
       <div className={styles.orb1} />
       <div className={styles.orb2} />
 
       {/* Sidebar */}
-      <Sidebar view={view} setView={handleSetView} stats={stats} collapsed={collapsed} setCollapsed={setCollapsed} />
+      <Sidebar 
+        view={view} 
+        setView={handleSetView} 
+        stats={stats} 
+        collapsed={collapsed} 
+        setCollapsed={setCollapsed} 
+        user={user}
+        onLogout={handleLogout}
+      />
 
       {/* Main */}
       <motion.main
@@ -166,8 +201,98 @@ export default function App() {
               {theme === 'dark' ? '☀️' : '🌙'}
             </motion.button>
 
-            {/* Avatar */}
-            <div className={styles.avatar}>JG</div>
+            {/* Avatar with dropdown */}
+            <div className={styles.avatarWrap}>
+              <motion.div 
+                className={styles.avatar} 
+                onClick={() => setProfileOpen(v => !v)}
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }}
+                title="Account Workspace"
+              >
+                {user?.avatar || 'JG'}
+                <span className={styles.avatarStatus} />
+              </motion.div>
+              
+              <AnimatePresence>
+                {profileOpen && (
+                  <>
+                    <div className={styles.avatarBackdrop} onClick={() => setProfileOpen(false)} />
+                    <motion.div 
+                      className={styles.profileMenu}
+                      initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 12, scale: 0.95 }}
+                      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      {/* User Profile Section */}
+                      <div className={styles.menuHeader}>
+                        <div className={styles.menuUserAvatar}>{user?.avatar || 'JG'}</div>
+                        <div className={styles.menuUserInfo}>
+                          <div className={styles.menuUserName}>{user?.name || 'Joe Godwin'}</div>
+                          <div className={styles.menuUserEmail}>{user?.email || 'guest@taskflow.io'}</div>
+                        </div>
+                        <span className={styles.proBadge}>PRO</span>
+                      </div>
+                      
+                      {/* Productivity stats */}
+                      <div className={styles.menuStats}>
+                        <div className={styles.menuStat}>
+                          <span className={styles.menuStatIcon}>🔥</span>
+                          <div>
+                            <div className={styles.menuStatLabel}>Streak</div>
+                            <div className={styles.menuStatVal}>7 Days</div>
+                          </div>
+                        </div>
+                        <div className={styles.menuStat}>
+                          <span className={styles.menuStatIcon}>🎯</span>
+                          <div>
+                            <div className={styles.menuStatLabel}>Done</div>
+                            <div className={styles.menuStatVal}>{stats.completed} tasks</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Storage/Account usage */}
+                      <div className={styles.usageContainer}>
+                        <div className={styles.usageLabels}>
+                          <span>Workspace Storage</span>
+                          <span>4.2 / 10 GB</span>
+                        </div>
+                        <div className={styles.usageTrack}>
+                          <div className={styles.usageFill} style={{ width: '42%' }} />
+                        </div>
+                      </div>
+
+                      <div className={styles.menuDivider} />
+
+                      {/* Commands */}
+                      <button className={styles.menuItem} onClick={() => { setProfileOpen(false); setActiveSettingsTab('profile'); }}>
+                        <span className={styles.menuItemIcon}>⬡</span> View Profile Dashboard
+                      </button>
+                      <button className={styles.menuItem} onClick={() => { setProfileOpen(false); setActiveSettingsTab('edit'); }}>
+                        <span className={styles.menuItemIcon}>👤</span> Edit Profile Details
+                      </button>
+                      <button className={styles.menuItem} onClick={() => { setProfileOpen(false); setActiveSettingsTab('notifications'); }}>
+                        <span className={styles.menuItemIcon}>🔔</span> Notifications Settings
+                      </button>
+                      <button className={styles.menuItem} onClick={() => { setProfileOpen(false); toggleTheme(); }}>
+                        <span className={styles.menuItemIcon}>{theme === 'dark' ? '☀️' : '🌙'}</span> Toggle Theme Mode
+                      </button>
+                      <button className={styles.menuItem} onClick={() => { setProfileOpen(false); setActiveSettingsTab('billing'); }}>
+                        <span className={styles.menuItemIcon}>🚀</span> Upgrade Account
+                      </button>
+
+                      <div className={styles.menuDivider} />
+
+                      <button className={`${styles.menuItem} ${styles.menuLogout}`} onClick={() => { setProfileOpen(false); handleLogout(); }}>
+                        <span className={styles.menuItemIcon}>✕</span> Logout Account
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </header>
 
@@ -259,10 +384,21 @@ export default function App() {
             )}
 
             {view === 'analytics' && (
-              <motion.div key="analytics" className={styles.singleView} {...pageVariants}>
-                <h2 className={styles.pageTitle}>📈 Analytics</h2>
-                <p className={styles.pageSub}>Insights into your productivity patterns over time.</p>
-                <div className={styles.analyticsGrid}>
+               <motion.div key="analytics" className={styles.singleView} {...pageVariants}>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 8 }}>
+                   <div>
+                     <h2 className={styles.pageTitle}>📈 Analytics</h2>
+                     <p className={styles.pageSub}>Insights into your productivity patterns over time.</p>
+                   </div>
+                   <button 
+                     className={styles.reportHeaderBtn} 
+                     onClick={() => setActiveSettingsTab('reports')}
+                     title="Export productivity as PDF"
+                   >
+                     ⚡ Export PDF Report
+                   </button>
+                 </div>
+                 <div className={styles.analyticsGrid}>
                   <AnalyticsChart todos={todos} stats={stats} />
                   <ActivityTimeline todos={todos} />
                 </div>
@@ -279,6 +415,43 @@ export default function App() {
           <span className={styles.fDot}>·</span>
           <span className={styles.fVer}>v3.0</span>
         </footer>
+        {/* Settings panel & Unified modal overlay */}
+        <AnimatePresence>
+          {activeSettingsTab && (
+            <SettingsModal
+              activeTab={activeSettingsTab}
+              setActiveTab={setActiveSettingsTab}
+              onClose={() => setActiveSettingsTab(null)}
+              user={user}
+              setUser={setUser}
+              stats={stats}
+              todos={todos}
+              pomoSessions={parseInt(localStorage.getItem(`tf_${user?.email || 'guest'}_pomo_sessions`) || '0', 10)}
+              showToast={showToast}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* SaaS toast notifications */}
+        <AnimatePresence>
+          {toast && (
+            <motion.div
+              className={styles.toast}
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              transition={{ duration: 0.22 }}
+              style={{
+                '--toast-bg': toast.type === 'success' ? 'var(--emerald-dim)' : 'var(--rose-dim)',
+                '--toast-border': toast.type === 'success' ? 'var(--emerald)' : 'var(--rose)',
+                '--toast-color': toast.type === 'success' ? 'var(--emerald)' : 'var(--rose)',
+              }}
+            >
+              <span style={{ fontSize: 16 }}>{toast.type === 'success' ? '✓' : '⚠️'}</span>
+              <span>{toast.message}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.main>
     </div>
   )

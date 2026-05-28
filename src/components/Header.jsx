@@ -9,7 +9,7 @@ const PAGE_TITLES = {
   completed: { label: 'Completed',  icon: '✅' },
 }
 
-export default function Header({ view, stats, searchQuery, setSearchQuery, sidebarCollapsed, setSidebarCollapsed }) {
+export default function Header({ view, stats, searchQuery, setSearchQuery, setSidebarCollapsed }) {
   const [searchFocused, setSearchFocused] = useState(false)
   const page = PAGE_TITLES[view] || PAGE_TITLES.dashboard
 

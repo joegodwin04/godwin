@@ -1,7 +1,14 @@
 // useHabits.js — Habit tracking with streaks and daily completions
 import { useState, useCallback } from 'react'
 
-const STORAGE_KEY = 'tf_habits'
+const getStorageKey = () => {
+  try {
+    const user = JSON.parse(localStorage.getItem('tf_user') || '{}')
+    return user.email ? `tf_${user.email}_habits` : 'tf_habits'
+  } catch {
+    return 'tf_habits'
+  }
+}
 
 const DEFAULT_HABITS = [
   { id: 'h_default_1', name: 'Morning workout', icon: '💪', color: '#f43f5e', completions: {}, createdAt: new Date().toISOString() },
@@ -11,13 +18,17 @@ const DEFAULT_HABITS = [
 
 const load = () => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(getStorageKey())
     return raw ? JSON.parse(raw) : DEFAULT_HABITS
   } catch { return DEFAULT_HABITS }
 }
 
 const save = (habits) => {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(habits)) } catch {}
+  try {
+    localStorage.setItem(getStorageKey(), JSON.stringify(habits))
+  } catch (e) {
+    console.warn('Failed to save habits', e)
+  }
 }
 
 const today = () => new Date().toISOString().split('T')[0]
@@ -46,7 +57,7 @@ export function useHabits() {
       createdAt: new Date().toISOString(),
     }
     persist(prev => { const next = [...prev, h]; save(next); return next })
-  }, [])
+  }, [persist])
 
   const toggleHabit = useCallback((id, date = today()) => {
     setHabits(prev => {

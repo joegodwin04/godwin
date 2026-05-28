@@ -16,8 +16,17 @@ export default function AddTaskModal({ isOpen, onClose, onAdd }) {
   const inputRef = useRef(null)
 
   useEffect(() => {
-    if (isOpen) setTimeout(() => inputRef.current?.focus(), 150)
-    else { setText(''); setNotes(''); setDueDate(''); setPriority('medium'); setCategory('other') }
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 150)
+    } else {
+      setTimeout(() => {
+        setText('')
+        setNotes('')
+        setDueDate('')
+        setPriority('medium')
+        setCategory('other')
+      }, 200)
+    }
   }, [isOpen])
 
   useEffect(() => {

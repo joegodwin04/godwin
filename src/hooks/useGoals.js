@@ -1,7 +1,14 @@
 // useGoals.js — Goal tracking with progress and localStorage
 import { useState, useCallback } from 'react'
 
-const STORAGE_KEY = 'tf_goals'
+const getStorageKey = () => {
+  try {
+    const user = JSON.parse(localStorage.getItem('tf_user') || '{}')
+    return user.email ? `tf_${user.email}_goals` : 'tf_goals'
+  } catch {
+    return 'tf_goals'
+  }
+}
 
 const DEFAULT_GOALS = [
   { id: 'g_default_1', title: 'Complete 50 tasks', icon: '🎯', color: '#7c6af7', target: 50, current: 0, unit: 'tasks', dueDate: '', createdAt: new Date().toISOString() },
@@ -11,7 +18,7 @@ const DEFAULT_GOALS = [
 
 const load = () => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(getStorageKey())
     return raw ? JSON.parse(raw) : DEFAULT_GOALS
   } catch { return DEFAULT_GOALS }
 }
@@ -21,7 +28,11 @@ export function useGoals() {
 
   const persist = useCallback((next) => {
     setGoals(next)
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)) } catch {}
+    try {
+      localStorage.setItem(getStorageKey(), JSON.stringify(next))
+    } catch (e) {
+      console.warn('Failed to persist goals', e)
+    }
   }, [])
 
   const addGoal = useCallback((data) => {
@@ -37,17 +48,17 @@ export function useGoals() {
         dueDate: data.dueDate || '',
         createdAt: new Date().toISOString(),
       }]
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      localStorage.setItem(getStorageKey(), JSON.stringify(next))
       return next
     })
-  }, [])
+  }, [persist])
 
   const increment = useCallback((id, by = 1) => {
     setGoals(prev => {
       const next = prev.map(g =>
         g.id === id ? { ...g, current: Math.min(g.current + by, g.target) } : g
       )
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      localStorage.setItem(getStorageKey(), JSON.stringify(next))
       return next
     })
   }, [])
@@ -57,7 +68,7 @@ export function useGoals() {
       const next = prev.map(g =>
         g.id === id ? { ...g, current: Math.max(g.current - 1, 0) } : g
       )
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      localStorage.setItem(getStorageKey(), JSON.stringify(next))
       return next
     })
   }, [])
@@ -65,7 +76,7 @@ export function useGoals() {
   const deleteGoal = useCallback((id) => {
     setGoals(prev => {
       const next = prev.filter(g => g.id !== id)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      localStorage.setItem(getStorageKey(), JSON.stringify(next))
       return next
     })
   }, [])

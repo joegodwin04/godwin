@@ -12,31 +12,49 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 64px 24px;
-  background: var(--bg-glass);
-  border: 1px dashed var(--border-subtle);
+  padding: 80px 24px;
+  background: radial-gradient(circle at center, rgba(124, 106, 247, 0.04) 0%, rgba(255, 255, 255, 0) 85%), var(--bg-glass);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--r-xl);
   text-align: center;
   backdrop-filter: blur(12px);
+  transition: all 0.32s var(--ease-out);
+}
+
+.empty:hover {
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-md), 0 0 28px var(--violet-dim);
 }
 
 .emptyIcon {
-  font-size: 54px;
-  margin-bottom: 18px;
-  filter: drop-shadow(0 4px 14px rgba(124,106,247,0.3));
+  font-size: 58px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 8px 24px rgba(124,106,247,0.22));
 }
 
 .emptyTitle {
-  font-size: 20px;
+  font-size: 21px;
   font-weight: 800;
-  color: var(--text-200);
+  color: var(--text-100);
   margin-bottom: 8px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
 .emptySub {
   font-size: 13.5px;
-  color: var(--text-400);
-  max-width: 280px;
+  color: var(--text-300);
+  max-width: 310px;
   line-height: 1.6;
 }
+
+/* Light mode overrides */
+:global([data-theme="light"]) .empty {
+  background: radial-gradient(circle at center, rgba(124, 106, 247, 0.04) 0%, rgba(255, 255, 255, 0) 80%), #ffffff;
+  border-color: #d8d4ef;
+  box-shadow: var(--shadow-sm);
+}
+:global([data-theme="light"]) .empty:hover {
+  border-color: #b8b3e4;
+  box-shadow: 0 10px 30px rgba(124,106,247,0.06), var(--shadow-md);
+}
+

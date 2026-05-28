@@ -62,19 +62,23 @@
 }
 .statCard {
   position: relative;
-  background: var(--bg-glass);
+  background: var(--bg-glass-md);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--r-lg); padding: 18px 16px;
+  border-radius: var(--r-xl); padding: 20px 18px;
   cursor: default; overflow: hidden;
-  transition: border-color 0.25s, box-shadow 0.25s, transform 0.22s;
+  transition: all 0.28s var(--ease-out);
   backdrop-filter: blur(16px);
   box-shadow: var(--shadow-xs);
 }
 .statCard::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
 }
-.statCard:hover { border-color: var(--border-default); box-shadow: var(--shadow-sm); transform: translateY(-2px); }
+.statCard:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  transform: translateY(-4px) scale(1.01);
+}
 .statGlow {
   position: absolute; bottom: -30px; right: -20px;
   width: 110px; height: 110px; border-radius: 50%;
@@ -110,19 +114,23 @@
 .widget {
   background: var(--bg-glass);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--r-lg);
-  padding: 18px;
-  display: flex; flex-direction: column; gap: 14px;
-  transition: border-color 0.25s, box-shadow 0.25s;
-  backdrop-filter: blur(16px);
+  border-radius: var(--r-xl);
+  padding: 22px 20px;
+  display: flex; flex-direction: column; gap: 16px;
+  transition: all 0.28s var(--ease-out);
+  backdrop-filter: blur(20px);
   position: relative; overflow: hidden;
   box-shadow: var(--shadow-xs);
 }
 .widget::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
 }
-.widget:hover { border-color: var(--border-default); box-shadow: var(--shadow-sm); }
+.widget:hover {
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-md), 0 10px 40px rgba(0,0,0,0.18);
+  transform: translateY(-2px);
+}
 
 .widgetHeader { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .widgetTitle { font-size: 13px; font-weight: 700; color: var(--text-200); letter-spacing: -0.01em; }

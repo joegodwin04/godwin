@@ -8,7 +8,6 @@ function formatDate(s) {
   if (!s) return null
   return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
-function isOverdue(s)  { return s && !isCompleted && new Date(s) < new Date(new Date().setHours(0,0,0,0)) }
 function isDueToday(s) { return s && new Date(s).toDateString() === new Date().toDateString() }
 
 const today = () => new Date().toISOString().split('T')[0]

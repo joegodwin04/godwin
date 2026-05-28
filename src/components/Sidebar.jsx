@@ -1,5 +1,5 @@
 // Sidebar.jsx — Premium animated sidebar with mobile drawer support
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '../context/ThemeContext'
 import styles from './Sidebar.module.css'
@@ -15,13 +15,9 @@ const NAV_TOOLS = [
   { id: 'analytics', label: 'Analytics',   icon: ChartIcon },
 ]
 
-function useIsMobile() {
-  if (typeof window === 'undefined') return false
-  return window.innerWidth <= 768
-}
-
-export default function Sidebar({ view, setView, stats, collapsed, setCollapsed }) {
+export default function Sidebar({ view, setView, stats, collapsed, setCollapsed, user, onLogout }) {
   const { theme, toggle: toggleTheme } = useTheme()
+  const [showUserMenu, setShowUserMenu] = useState(false)
 
   // On mobile, close sidebar when navigating
   const handleNavClick = (id) => {
@@ -170,16 +166,41 @@ export default function Sidebar({ view, setView, stats, collapsed, setCollapsed 
           </motion.button>
 
           {/* User row */}
-          <div className={styles.userRow}>
-            <div className={styles.avatar}>JG</div>
+          <div className={styles.userRowContainer}>
+            <div className={styles.userRow} onClick={() => setShowUserMenu(prev => !prev)} title="Account Settings">
+              <div className={styles.avatar}>{user?.avatar || 'JG'}</div>
+              <AnimatePresence>
+                {!collapsed && (
+                  <motion.div className={styles.userInfo}
+                    initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -8 }} transition={{ duration: 0.18 }}>
+                    <span className={styles.userName}>{user?.name || 'Joe Godwin'}</span>
+                    <span className={styles.userRole}>⚡ Pro Plan</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <div className={styles.userChevron}>▼</div>
+            </div>
+            
             <AnimatePresence>
-              {!collapsed && (
-                <motion.div className={styles.userInfo}
-                  initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -8 }} transition={{ duration: 0.18 }}>
-                  <span className={styles.userName}>Joe Godwin</span>
-                  <span className={styles.userRole}>⚡ Pro Plan</span>
-                </motion.div>
+              {showUserMenu && (
+                <>
+                  <div className={styles.userMenuBackdrop} onClick={() => setShowUserMenu(false)} />
+                  <motion.div 
+                    className={styles.userMenu}
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    <div className={styles.userMenuHeader}>
+                      <span className={styles.userMenuEmail}>{user?.email || 'guest@taskflow.io'}</span>
+                    </div>
+                    <button className={styles.userMenuItem} onClick={() => { setShowUserMenu(false); onLogout(); }}>
+                      <span className={styles.logoutIcon}>✕</span> Sign Out
+                    </button>
+                  </motion.div>
+                </>
               )}
             </AnimatePresence>
           </div>

@@ -123,7 +123,6 @@ export default function HabitTracker() {
           habits.map((h, idx) => {
             const days  = getLastNDays(h)
             const streak = getStreak(h)
-            const doneToday = !!h.completions[todayStr]
 
             return (
               <motion.div

@@ -18,21 +18,31 @@ const item = {
 function useCountUp(target, ms = 1100) {
   const [n, setN] = useState(0)
   useEffect(() => {
-    if (target === 0) { setN(0); return }
+    if (target === 0) {
+      setTimeout(() => setN(0), 0)
+      return
+    }
     let start = null
+    let frameId = null
     const step = ts => {
       if (!start) start = ts
       const p = Math.min((ts - start) / ms, 1)
       setN(Math.floor(p * target))
-      if (p < 1) requestAnimationFrame(step)
-      else setN(target)
+      if (p < 1) {
+        frameId = requestAnimationFrame(step)
+      } else {
+        setN(target)
+      }
     }
-    requestAnimationFrame(step)
-  }, [target])
+    frameId = requestAnimationFrame(step)
+    return () => {
+      if (frameId) cancelAnimationFrame(frameId)
+    }
+  }, [target, ms])
   return n
 }
 
-function StatCard({ label, value, icon, gradient, glow, delta }) {
+function StatCard({ label, value, icon, gradient, glow }) {
   const animated = useCountUp(value)
   return (
     <motion.div
@@ -56,7 +66,7 @@ function StatCard({ label, value, icon, gradient, glow, delta }) {
 function ProductivityRing({ rate }) {
   const r = 54, circ = 2 * Math.PI * r
   const [off, setOff] = useState(circ)
-  useEffect(() => { const t = setTimeout(() => setOff(circ - (rate/100)*circ), 250); return () => clearTimeout(t) }, [rate])
+  useEffect(() => { const t = setTimeout(() => setOff(circ - (rate/100)*circ), 250); return () => clearTimeout(t) }, [rate, circ])
   return (
     <div className={styles.ringWrap}>
       <svg width="140" height="140" viewBox="0 0 140 140">
@@ -89,6 +99,8 @@ function getGreeting() {
 }
 
 export default function Dashboard({ stats, todos, onNavigate }) {
+  const user = JSON.parse(localStorage.getItem('tf_user') || '{}')
+  const userName = user.name ? user.name.split(' ')[0] : 'Builder'
   const greeting = getGreeting()
   const recentTodos = [...todos].sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5)
   const catStats = CATEGORIES.map(c => ({
@@ -110,7 +122,7 @@ export default function Dashboard({ stats, todos, onNavigate }) {
             transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut' }}
           >{greeting.emoji}</motion.div>
           <div>
-            <h1 className={styles.heroTitle}>{greeting.text}, Joe!</h1>
+            <h1 className={styles.heroTitle}>{greeting.text}, {userName}!</h1>
             <p className={styles.heroSub}>
               {stats.active === 0 && stats.total === 0
                 ? 'Ready to be productive? Add your first task 🚀'

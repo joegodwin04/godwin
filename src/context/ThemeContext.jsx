@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // ThemeContext.jsx — Light/dark mode with localStorage persistence
 import { createContext, useContext, useState, useEffect } from 'react'
 

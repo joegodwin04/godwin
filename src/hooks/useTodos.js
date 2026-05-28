@@ -1,13 +1,20 @@
 // useTodos.js — Custom hook for all todo state management
 import { useState, useCallback, useMemo } from 'react'
 
-const STORAGE_KEY = 'taskflow_todos'
+const getStorageKey = () => {
+  try {
+    const user = JSON.parse(localStorage.getItem('tf_user') || '{}')
+    return user.email ? `tf_${user.email}_todos` : 'taskflow_todos'
+  } catch {
+    return 'taskflow_todos'
+  }
+}
 
 const generateId = () => `todo_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
 
 const loadFromStorage = () => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(getStorageKey())
     return raw ? JSON.parse(raw) : []
   } catch {
     return []
@@ -16,8 +23,10 @@ const loadFromStorage = () => {
 
 const saveToStorage = (todos) => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
-  } catch {}
+    localStorage.setItem(getStorageKey(), JSON.stringify(todos))
+  } catch (e) {
+    console.warn('Failed to save todos', e)
+  }
 }
 
 export const PRIORITIES = {
@@ -25,6 +34,8 @@ export const PRIORITIES = {
   medium: { label: 'Medium', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',  icon: '🟡' },
   low:    { label: 'Low',    color: '#22d3a5', bg: 'rgba(34,211,165,0.1)',   icon: '🟢' },
 }
+
+const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 }
 
 export const CATEGORIES = [
   { id: 'work',     label: 'Work',     icon: '💼', color: '#7c6af7' },
@@ -64,7 +75,7 @@ export function useTodos() {
       saveToStorage(next)
       return next
     })
-  }, [])
+  }, [persist])
 
   const toggleTodo = useCallback((id) => {
     setTodos(prev => {
@@ -111,8 +122,6 @@ export function useTodos() {
       return next
     })
   }, [])
-
-  const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 }
 
   const filteredTodos = useMemo(() => {
     let result = [...todos]

@@ -96,9 +96,10 @@
 
 .activeIndicator {
   position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(124,106,247,0.18), rgba(167,139,250,0.07));
+  background: linear-gradient(135deg, rgba(124,106,247,0.12), rgba(167,139,250,0.04));
   border-radius: var(--r-md);
-  border: 1px solid rgba(124,106,247,0.25);
+  border: 1px solid rgba(124,106,247,0.22);
+  border-left: 3.5px solid var(--violet);
   z-index: -1;
 }
 .navIcon {
@@ -149,6 +150,10 @@
 .themeIcon { font-size: 15px; width: 32px; text-align: center; flex-shrink: 0; }
 .themeLabel { font-size: 12.5px; color: var(--text-300); font-weight: 500; white-space: nowrap; }
 
+.userRowContainer {
+  position: relative;
+  width: 100%;
+}
 .userRow {
   display: flex; align-items: center; gap: 9px;
   padding: 11px 14px;
@@ -156,6 +161,7 @@
   overflow: hidden; cursor: pointer;
   transition: background 0.18s;
   min-height: 52px;
+  user-select: none;
 }
 .userRow:hover { background: var(--bg-glass); }
 .avatar {
@@ -169,6 +175,75 @@
 .userInfo { overflow: hidden; }
 .userName { display: block; font-size: 13px; font-weight: 700; color: var(--text-200); white-space: nowrap; letter-spacing: -0.01em; }
 .userRole { display: block; font-size: 10px; color: var(--violet-light); font-weight: 600; white-space: nowrap; }
+.userChevron {
+  font-size: 8px;
+  color: var(--text-400);
+  margin-left: auto;
+  transition: var(--transition);
+  opacity: 0.6;
+}
+.userRow:hover .userChevron {
+  opacity: 1;
+  color: var(--text-200);
+}
+.userMenuBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: transparent;
+}
+.userMenu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 10px;
+  right: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-md);
+  padding: 6px;
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  backdrop-filter: blur(16px);
+}
+.userMenuHeader {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 4px;
+}
+.userMenuEmail {
+  display: block;
+  font-size: 11px;
+  color: var(--text-300);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.userMenuItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: var(--r-xs);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-200);
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+}
+.userMenuItem:hover {
+  background: var(--rose-dim);
+  color: var(--rose);
+}
+.logoutIcon {
+  font-size: 10px;
+  opacity: 0.75;
+}
+
 
 /* ============================================================
    ★ PREMIUM LIGHT MODE — Clean white sidebar like Linear/Notion ★
@@ -211,8 +286,9 @@
 [data-theme="light"] .navActive { color: var(--text-100) !important; }
 [data-theme="light"] .activeIndicator {
   /* Clean solid light background for active state */
-  background: linear-gradient(135deg, rgba(124,106,247,0.08), rgba(167,139,250,0.04));
-  border: 1px solid rgba(124,106,247,0.18);
+  background: linear-gradient(135deg, rgba(124,106,247,0.06), rgba(167,139,250,0.03));
+  border: 1px solid rgba(124,106,247,0.14);
+  border-left: 3.5px solid var(--violet);
 }
 [data-theme="light"] .navIcon {
   background: transparent;
@@ -249,6 +325,27 @@
 [data-theme="light"] .userRow:hover { background: var(--bg-form); }
 [data-theme="light"] .userName { color: var(--text-100); }
 [data-theme="light"] .divider { background: var(--border-subtle); }
+[data-theme="light"] .userChevron { color: var(--text-400); }
+[data-theme="light"] .userRow:hover .userChevron { color: var(--text-100); }
+[data-theme="light"] .userMenu {
+  background: #ffffff;
+  border-color: #d8d4ef;
+  box-shadow: 0 10px 30px rgba(124, 106, 247, 0.08), var(--shadow-sm);
+}
+[data-theme="light"] .userMenuHeader {
+  border-bottom-color: #ebe8f8;
+}
+[data-theme="light"] .userMenuEmail {
+  color: var(--text-300);
+}
+[data-theme="light"] .userMenuItem {
+  color: var(--text-200);
+}
+[data-theme="light"] .userMenuItem:hover {
+  background: rgba(244, 63, 94, 0.08);
+  color: var(--rose);
+}
+
 
 /* ============================================================
    MOBILE RESPONSIVE — Drawer Mode

@@ -1,19 +1,27 @@
 // usePomodoro.js — Focus timer with work/break modes and session tracking
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 const WORK_SECS  = 25 * 60
 const SHORT_SECS =  5 * 60
 const LONG_SECS  = 15 * 60
+const MODE_TIMES = { work: WORK_SECS, short: SHORT_SECS, long: LONG_SECS }
+
+const getStorageKey = () => {
+  try {
+    const user = JSON.parse(localStorage.getItem('tf_user') || '{}')
+    return user.email ? `tf_${user.email}_pomo_sessions` : 'tf_pomo_sessions'
+  } catch {
+    return 'tf_pomo_sessions'
+  }
+}
 
 export function usePomodoro() {
   const [mode, setMode]       = useState('work')   // 'work' | 'short' | 'long'
   const [timeLeft, setTimeLeft] = useState(WORK_SECS)
   const [running, setRunning]   = useState(false)
   const [sessions, setSessions] = useState(
-    () => parseInt(localStorage.getItem('tf_pomo_sessions') || '0', 10)
+    () => parseInt(localStorage.getItem(getStorageKey()) || '0', 10)
   )
-
-  const modeTime = { work: WORK_SECS, short: SHORT_SECS, long: LONG_SECS }
 
   // Countdown
   useEffect(() => {
@@ -25,28 +33,30 @@ export function usePomodoro() {
   // Handle completion
   useEffect(() => {
     if (running && timeLeft === 0) {
-      setRunning(false)
-      if (mode === 'work') {
-        setSessions(s => {
-          const next = s + 1
-          localStorage.setItem('tf_pomo_sessions', next)
-          return next
-        })
-        // Auto-switch to short break
-        setMode('short')
-        setTimeLeft(SHORT_SECS)
-      } else {
-        setMode('work')
-        setTimeLeft(WORK_SECS)
-      }
+      setTimeout(() => {
+        setRunning(false)
+        if (mode === 'work') {
+          setSessions(s => {
+            const next = s + 1
+            localStorage.setItem(getStorageKey(), next)
+            return next
+          })
+          // Auto-switch to short break
+          setMode('short')
+          setTimeLeft(SHORT_SECS)
+        } else {
+          setMode('work')
+          setTimeLeft(WORK_SECS)
+        }
+      }, 0)
     }
   }, [timeLeft, running, mode])
 
   const toggle    = useCallback(() => setRunning(r => !r), [])
-  const reset     = useCallback(() => { setRunning(false); setTimeLeft(modeTime[mode]) }, [mode])
-  const switchMode = useCallback((m) => { setRunning(false); setMode(m); setTimeLeft(modeTime[m]) }, [])
+  const reset     = useCallback(() => { setRunning(false); setTimeLeft(MODE_TIMES[mode]) }, [mode])
+  const switchMode = useCallback((m) => { setRunning(false); setMode(m); setTimeLeft(MODE_TIMES[m]) }, [])
 
-  const totalSecs = modeTime[mode]
+  const totalSecs = MODE_TIMES[mode]
   const progress  = 1 - timeLeft / totalSecs   // 0 → 1
   const mm = String(Math.floor(timeLeft / 60)).padStart(2, '0')
   const ss = String(timeLeft % 60).padStart(2, '0')
