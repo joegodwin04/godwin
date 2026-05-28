@@ -209,23 +209,23 @@ body::before {
    ============================================================ */
 [data-theme="light"] {
   /* ── Layered background system ── */
-  --bg-base:         #edeaf8;    /* Page — soft lavender (NOT white) */
-  --bg-surface:      #e5e2f3;    /* Recessed areas / sidebar footer */
+  --bg-base:         #f1f0f8;    /* Page — clean premium lavender-slate (NOT washed out) */
+  --bg-surface:      #e9e8f4;    /* Recessed areas / sidebar footer */
   --bg-elevated:     #ffffff;    /* Pure white — modal, popover */
   --bg-card:         #ffffff;    /* Pure white cards */
   --bg-glass:        #ffffff;    /* Glass = white in light mode */
   --bg-glass-md:     #ffffff;
   --bg-glass-strong: #ffffff;
-  --bg-overlay:      rgba(237, 234, 248, 0.96);
+  --bg-overlay:      rgba(241, 240, 248, 0.96);
   --bg-input:        #ffffff;    /* White inputs with border */
-  --bg-form:         #f8f7fe;    /* Slightly tinted form areas */
+  --bg-form:         #fafafc;    /* Slightly tinted form areas */
 
   /* ── Professional text hierarchy ── */
-  --text-100: #0f0e2a;           /* Near-black — headings, values */
-  --text-200: #3c3960;           /* Dark — body text, labels */
-  --text-300: #6561a0;           /* Medium — secondary labels */
-  --text-400: #9d9bbf;           /* Muted — placeholders, meta */
-  --text-500: #c2c0d8;           /* Very muted — dividers text */
+  --text-100: #0d0c22;           /* Near-black headings, values */
+  --text-200: #292842;           /* Dark body text, labels */
+  --text-300: #4f4c75;           /* Medium secondary labels */
+  --text-400: #7b789e;           /* Muted placeholders, meta */
+  --text-500: #ababc2;           /* Very muted dividers text */
 
   --text-primary:     var(--text-100);
   --text-secondary:   var(--text-200);
@@ -233,55 +233,55 @@ body::before {
   --text-placeholder: var(--text-400);
 
   /* ── Visible border system (always distinguishable) ── */
-  --border-subtle:  #ebe8f8;     /* Very subtle — always visible */
-  --border-default: #d8d4ef;     /* Default — clear card borders */
-  --border-strong:  #b8b3e4;     /* Strong — focused, active */
+  --border-subtle:  #e3e1f2;     /* Subtle but highly distinct borders */
+  --border-default: #d1cee6;     /* Default card boundaries */
+  --border-strong:  #a9a5d3;     /* Strong borders for hover/active */
   --border-focus:   #7c6af7;     /* Focus — violet */
   --border:         var(--border-subtle);
   --border-hover:   var(--border-default);
 
   /* ── Real elevation shadows (the key to premium feel) ── */
   --shadow-xs:
-    0 1px 2px rgba(15, 14, 42, 0.05),
-    0 1px 8px rgba(124, 106, 247, 0.06);
+    0 1px 3px rgba(15, 14, 42, 0.06),
+    0 1px 8px rgba(124, 106, 247, 0.05);
   --shadow-sm:
-    0 2px 8px rgba(15, 14, 42, 0.07),
-    0 4px 20px rgba(124, 106, 247, 0.08);
+    0 3px 10px rgba(15, 14, 42, 0.08),
+    0 4px 22px rgba(124, 106, 247, 0.07);
   --shadow-md:
-    0 4px 16px rgba(15, 14, 42, 0.09),
-    0 8px 32px rgba(124, 106, 247, 0.10);
+    0 6px 20px rgba(15, 14, 42, 0.09),
+    0 10px 38px rgba(124, 106, 247, 0.09);
   --shadow-lg:
-    0 8px 32px rgba(15, 14, 42, 0.11),
-    0 16px 48px rgba(124, 106, 247, 0.12);
-  --shadow-glow:        0 0 28px rgba(124, 106, 247, 0.18);
-  --shadow-glow-strong: 0 0 48px rgba(124, 106, 247, 0.26);
+    0 10px 36px rgba(15, 14, 42, 0.12),
+    0 20px 60px rgba(124, 106, 247, 0.12);
+  --shadow-glow:        0 0 28px rgba(124, 106, 247, 0.15);
+  --shadow-glow-strong: 0 0 48px rgba(124, 106, 247, 0.22);
   --shadow:             var(--shadow-md);
 
   /* ── Theme-aware chart grid ── */
-  --chart-grid: #e8e5f5;
+  --chart-grid: #e2e0f0;
 
   /* ── Pastel accent dims for light ── */
-  --violet-dim:      rgba(124, 106, 247, 0.09);
-  --violet-glow:     rgba(124, 106, 247, 0.22);
-  --violet-glow-lg:  rgba(124, 106, 247, 0.12);
+  --violet-dim:      rgba(124, 106, 247, 0.08);
+  --violet-glow:     rgba(124, 106, 247, 0.20);
+  --violet-glow-lg:  rgba(124, 106, 247, 0.10);
 
-  --cyan-dim:     rgba(34, 211, 238, 0.09);
-  --cyan-glow:    rgba(34, 211, 238, 0.22);
-  --emerald-dim:  rgba(16, 185, 129, 0.09);
-  --emerald-glow: rgba(16, 185, 129, 0.22);
-  --rose-dim:     rgba(244, 63, 94, 0.09);
-  --rose-glow:    rgba(244, 63, 94, 0.22);
-  --amber-dim:    rgba(245, 158, 11, 0.09);
-  --amber-glow:   rgba(245, 158, 11, 0.22);
-  --pink-dim:     rgba(236, 72, 153, 0.09);
+  --cyan-dim:     rgba(34, 211, 238, 0.08);
+  --cyan-glow:    rgba(34, 211, 238, 0.20);
+  --emerald-dim:  rgba(16, 185, 129, 0.08);
+  --emerald-glow: rgba(16, 185, 129, 0.20);
+  --rose-dim:     rgba(244, 63, 94, 0.08);
+  --rose-glow:    rgba(244, 63, 94, 0.20);
+  --amber-dim:    rgba(245, 158, 11, 0.08);
+  --amber-glow:   rgba(245, 158, 11, 0.20);
+  --pink-dim:     rgba(236, 72, 153, 0.08);
 }
 
 /* ── Light mode body — layered gradient background ── */
 [data-theme="light"] body {
   background:
-    radial-gradient(ellipse 60% 40% at 0% 0%, rgba(124,106,247,0.09) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 30% at 100% 100%, rgba(124,106,247,0.06) 0%, transparent 50%),
-    #edeaf8;
+    radial-gradient(ellipse 60% 40% at 0% 0%, rgba(124,106,247,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 30% at 100% 100%, rgba(124,106,247,0.05) 0%, transparent 50%),
+    #f1f0f8;
 }
 
 /* ── Disable dark-mode blobs in light ── */

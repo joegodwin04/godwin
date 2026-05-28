@@ -53,8 +53,8 @@ function Ring({ progress, color, glow, size = 160, theme }) {
   )
 }
 
-export default function PomodoroTimer({ compact = false }) {
-  const { mode, running, sessions, progress, mm, ss, toggle, reset, switchMode } = usePomodoro()
+export default function PomodoroTimer({ compact = false, user }) {
+  const { mode, running, sessions, progress, mm, ss, toggle, reset, switchMode } = usePomodoro(user)
   const { theme } = useTheme()
   const meta = MODE_META[mode]
 

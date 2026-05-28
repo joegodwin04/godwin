@@ -19,6 +19,89 @@ export default function Auth({ onLoginSuccess }) {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  // Deterministic email hashing function for persistent email user IDs
+  function getEmailHash(email) {
+    let hash = 0
+    const cleanEmail = email.toLowerCase().trim()
+    for (let i = 0; i < cleanEmail.length; i++) {
+      hash = (hash << 5) - hash + cleanEmail.charCodeAt(i)
+      hash |= 0
+    }
+    return Math.abs(hash).toString(36)
+  }
+
+  // Dynamic seeding of individual user workspace keys
+  function seedWorkspaceForUser(userId, isDemo = false) {
+    try {
+      if (localStorage.getItem(`taskflow_${userId}_tasks`)) return
+
+      // 1. Scoped Todos
+      const defaultTodos = isDemo ? [
+        { id: 'todo_g1', text: 'Design high-fidelity dashboard hero', completed: true, priority: 'high', category: 'work', dueDate: null, notes: 'Complete this before shipping v5.', createdAt: new Date().toISOString(), completedAt: new Date().toISOString() },
+        { id: 'todo_g2', text: 'Audit Stripe payment comparisons modal', completed: true, priority: 'medium', category: 'work', dueDate: null, notes: 'Check all Pricing Card grids.', createdAt: new Date().toISOString(), completedAt: new Date().toISOString() },
+        { id: 'todo_g3', text: 'Structure multi-account scoped state keys', completed: false, priority: 'high', category: 'work', dueDate: null, notes: 'Verify todos, habits, goals, pomodoros isolation.', createdAt: new Date().toISOString(), completedAt: null },
+        { id: 'todo_g4', text: 'Complete productivity report print styles', completed: false, priority: 'medium', category: 'learning', dueDate: null, notes: 'Test browser print-to-PDF formatting.', createdAt: new Date().toISOString(), completedAt: null },
+      ] : [
+        { id: `todo_n1`, text: '🚀 Welcome to TaskFlow! Complete your first task', completed: false, priority: 'high', category: 'other', dueDate: null, notes: 'Click checkmark to complete!', createdAt: new Date().toISOString(), completedAt: null },
+        { id: `todo_n2`, text: '⏱️ Complete a focus session in the Focus Timer tab', completed: false, priority: 'medium', category: 'learning', dueDate: null, notes: 'Work for 25 minutes, then rest.', createdAt: new Date().toISOString(), completedAt: null },
+      ]
+      localStorage.setItem(`taskflow_${userId}_tasks`, JSON.stringify(defaultTodos))
+
+      // 2. Scoped Habits (Pre-completed completions for demo)
+      const dateStr = (daysAgo = 0) => {
+        const d = new Date()
+        d.setDate(d.getDate() - daysAgo)
+        return d.toISOString().split('T')[0]
+      }
+      const defaultHabits = [
+        {
+          id: 'h_default_1',
+          name: 'Morning workout',
+          icon: '💪',
+          color: '#f43f5e',
+          completions: isDemo ? {
+            [dateStr(0)]: true, [dateStr(1)]: true, [dateStr(2)]: true, [dateStr(3)]: true, [dateStr(4)]: true, [dateStr(5)]: true, [dateStr(6)]: true
+          } : {},
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 'h_default_2',
+          name: 'Read 20 minutes',
+          icon: '📚',
+          color: '#f59e0b',
+          completions: isDemo ? {
+            [dateStr(0)]: true, [dateStr(1)]: true, [dateStr(2)]: true, [dateStr(3)]: true, [dateStr(4)]: true, [dateStr(5)]: true, [dateStr(6)]: true
+          } : {},
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 'h_default_3',
+          name: 'Drink 8 glasses',
+          icon: '💧',
+          color: '#22d3ee',
+          completions: isDemo ? {
+            [dateStr(0)]: true, [dateStr(1)]: true, [dateStr(2)]: true
+          } : {},
+          createdAt: new Date().toISOString()
+        }
+      ]
+      localStorage.setItem(`taskflow_${userId}_habits`, JSON.stringify(defaultHabits))
+
+      // 3. Scoped Goals
+      const defaultGoals = [
+        { id: 'g_default_1', title: 'Complete 50 tasks', icon: '🎯', color: '#7c6af7', target: 50, current: isDemo ? 45 : 0, unit: 'tasks', dueDate: '', createdAt: new Date().toISOString() },
+        { id: 'g_default_2', title: 'Build 30-day streak', icon: '🔥', color: '#f59e0b', target: 30, current: isDemo ? 12 : 0, unit: 'days', dueDate: '', createdAt: new Date().toISOString() },
+        { id: 'g_default_3', title: 'Focus sessions this month', icon: '⏱️', color: '#10b981', target: 20, current: isDemo ? 18 : 0, unit: 'sessions', dueDate: '', createdAt: new Date().toISOString() },
+      ]
+      localStorage.setItem(`taskflow_${userId}_goals`, JSON.stringify(defaultGoals))
+
+      // 4. Scoped Focus Sessions
+      localStorage.setItem(`taskflow_${userId}_analytics`, isDemo ? '18' : '0')
+    } catch (e) {
+      console.error('Failed to seed user workspace:', e)
+    }
+  }
+
   // Pre-seed mock database registry & realistic test records
   function preseedRegistry() {
     try {
@@ -26,95 +109,56 @@ export default function Auth({ onLoginSuccess }) {
       const guestExists = registry.some(u => u.email === 'guest@taskflow.io')
       
       if (!guestExists) {
+        const guestEmail = 'guest@taskflow.io'
+        const guestId = `email_${getEmailHash(guestEmail)}`
         const guestUser = {
+          id: guestId,
           name: 'Joe Godwin',
-          email: 'guest@taskflow.io',
+          email: guestEmail,
           password: 'password',
           bio: 'Productivity enthusiast and SaaS engineer. Building the future of automated workspaces.',
           joinDate: 'March 14, 2026',
           avatar: 'JG',
           notifications: { push: true, email: true, weeklyReports: true, soundToggle: true },
-          premium: true
+          premium: true,
+          isGuest: false
         }
         registry.push(guestUser)
         
         // Add Second User (Joe Stripe)
+        const joeEmail = 'joe@stripe.com'
+        const joeId = `email_${getEmailHash(joeEmail)}`
         const joeUser = {
+          id: joeId,
           name: 'Joe Stripe',
-          email: 'joe@stripe.com',
+          email: joeEmail,
           password: 'password',
           bio: 'Design lead at Stripe. Building beautiful visual interfaces.',
           joinDate: 'April 20, 2026',
           avatar: 'JS',
           notifications: { push: true, email: true, weeklyReports: false, soundToggle: true },
-          premium: false
+          premium: false,
+          isGuest: false
         }
         registry.push(joeUser)
         
         localStorage.setItem('tf_users_registry', JSON.stringify(registry))
         
-        // Seeding Guest data
-        const guestEmail = 'guest@taskflow.io'
-        
-        // 1. Scoped Todos
-        const defaultTodos = [
-          { id: 'todo_g1', text: 'Design high-fidelity dashboard hero', completed: true, priority: 'high', category: 'work', dueDate: null, notes: 'Complete this before shipping v5.', createdAt: new Date().toISOString(), completedAt: new Date().toISOString() },
-          { id: 'todo_g2', text: 'Audit Stripe payment comparisons modal', completed: true, priority: 'medium', category: 'work', dueDate: null, notes: 'Check all Pricing Card grids.', createdAt: new Date().toISOString(), completedAt: new Date().toISOString() },
-          { id: 'todo_g3', text: 'Structure multi-account scoped state keys', completed: false, priority: 'high', category: 'work', dueDate: null, notes: 'Verify todos, habits, goals, pomodoros isolation.', createdAt: new Date().toISOString(), completedAt: null },
-          { id: 'todo_g4', text: 'Complete productivity report print styles', completed: false, priority: 'medium', category: 'learning', dueDate: null, notes: 'Test browser print-to-PDF formatting.', createdAt: new Date().toISOString(), completedAt: null },
+        // Seed workspaces with beautiful pre-populated metrics
+        seedWorkspaceForUser(guestId, true)
+        seedWorkspaceForUser(joeId, true)
+
+        // Make Joe Stripe's tasks visibly distinct for testing!
+        const joeTodos = [
+          { id: 'todo_j1', text: 'Structure Stripe Connect onboarding UI', completed: true, priority: 'high', category: 'work', dueDate: null, notes: 'Design with dark high contrast cards.', createdAt: new Date().toISOString(), completedAt: new Date().toISOString() },
+          { id: 'todo_j2', text: 'Refine billing subscriptions ledger', completed: false, priority: 'medium', category: 'work', dueDate: null, notes: 'Verify invoice generation PDF downloads.', createdAt: new Date().toISOString(), completedAt: null },
         ]
-        localStorage.setItem(`tf_${guestEmail}_todos`, JSON.stringify(defaultTodos))
+        localStorage.setItem(`taskflow_${joeId}_tasks`, JSON.stringify(joeTodos))
         
-        // 2. Scoped Habits (Pre-completed completions to show 7-day streak!)
-        const dateStr = (daysAgo = 0) => {
-          const d = new Date()
-          d.setDate(d.getDate() - daysAgo)
-          return d.toISOString().split('T')[0]
-        }
-        const guestHabits = [
-          {
-            id: 'h_default_1',
-            name: 'Morning workout',
-            icon: '💪',
-            color: '#f43f5e',
-            completions: {
-              [dateStr(0)]: true, [dateStr(1)]: true, [dateStr(2)]: true, [dateStr(3)]: true, [dateStr(4)]: true, [dateStr(5)]: true, [dateStr(6)]: true
-            },
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: 'h_default_2',
-            name: 'Read 20 minutes',
-            icon: '📚',
-            color: '#f59e0b',
-            completions: {
-              [dateStr(0)]: true, [dateStr(1)]: true, [dateStr(2)]: true, [dateStr(3)]: true, [dateStr(4)]: true, [dateStr(5)]: true, [dateStr(6)]: true
-            },
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: 'h_default_3',
-            name: 'Drink 8 glasses',
-            icon: '💧',
-            color: '#22d3ee',
-            completions: {
-              [dateStr(0)]: true, [dateStr(1)]: true, [dateStr(2)]: true
-            },
-            createdAt: new Date().toISOString()
-          }
+        const joeGoals = [
+          { id: 'g_j1', title: 'Complete Stripe Onboarding', icon: '🏆', color: '#10b981', target: 10, current: 4, unit: 'sprints', dueDate: '', createdAt: new Date().toISOString() }
         ]
-        localStorage.setItem(`tf_${guestEmail}_habits`, JSON.stringify(guestHabits))
-        
-        // 3. Scoped Goals
-        const guestGoals = [
-          { id: 'g_default_1', title: 'Complete 50 tasks', icon: '🎯', color: '#7c6af7', target: 50, current: 45, unit: 'tasks', dueDate: '', createdAt: new Date().toISOString() },
-          { id: 'g_default_2', title: 'Build 30-day streak', icon: '🔥', color: '#f59e0b', target: 30, current: 12, unit: 'days', dueDate: '', createdAt: new Date().toISOString() },
-          { id: 'g_default_3', title: 'Focus sessions this month', icon: '⏱️', color: '#10b981', target: 20, current: 18, unit: 'sessions', dueDate: '', createdAt: new Date().toISOString() },
-        ]
-        localStorage.setItem(`tf_${guestEmail}_goals`, JSON.stringify(guestGoals))
-        
-        // 4. Scoped Focus Sessions
-        localStorage.setItem(`tf_${guestEmail}_pomo_sessions`, '18')
+        localStorage.setItem(`taskflow_${joeId}_goals`, JSON.stringify(joeGoals))
       }
     } catch (e) {
       console.error('Failed to pre-seed guest registry', e)
@@ -146,6 +190,8 @@ export default function Auth({ onLoginSuccess }) {
     setTimeout(() => {
       try {
         const registry = JSON.parse(localStorage.getItem('tf_users_registry') || '[]')
+        const emailHash = getEmailHash(email)
+        const userId = `email_${emailHash}`
         
         if (mode === 'login') {
           // Check Login Credentials
@@ -163,6 +209,13 @@ export default function Auth({ onLoginSuccess }) {
             return
           }
           
+          if (!userRecord.id) {
+            userRecord.id = userId
+          }
+          
+          // Seed workspace if not already present
+          seedWorkspaceForUser(userRecord.id, false)
+          
           setIsLoading(false)
           onLoginSuccess(userRecord)
         } else {
@@ -176,6 +229,7 @@ export default function Auth({ onLoginSuccess }) {
           }
           
           const newUser = {
+            id: userId,
             name: name,
             email: email,
             password: password,
@@ -183,18 +237,15 @@ export default function Auth({ onLoginSuccess }) {
             joinDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
             avatar: name.substring(0, 2).toUpperCase(),
             notifications: { push: true, email: true, weeklyReports: true, soundToggle: true },
-            premium: false
+            premium: false,
+            isGuest: false
           }
           
           registry.push(newUser)
           localStorage.setItem('tf_users_registry', JSON.stringify(registry))
           
           // Seed new clean starter tasks for fresh user experience
-          const newTodos = [
-            { id: `todo_n1_${Date.now()}`, text: '🚀 Welcome to TaskFlow! Complete your first task', completed: false, priority: 'high', category: 'other', dueDate: null, notes: 'Click checkmark to complete!', createdAt: new Date().toISOString(), completedAt: null },
-            { id: `todo_n2_${Date.now()}`, text: '⏱️ Complete a focus session in the Focus Timer tab', completed: false, priority: 'medium', category: 'learning', dueDate: null, notes: 'Work for 25 minutes, then rest.', createdAt: new Date().toISOString(), completedAt: null },
-          ]
-          localStorage.setItem(`tf_${email}_todos`, JSON.stringify(newTodos))
+          seedWorkspaceForUser(userId, false)
           
           setIsLoading(false)
           onLoginSuccess(newUser)
@@ -212,31 +263,30 @@ export default function Auth({ onLoginSuccess }) {
     setError('')
     setTimeout(() => {
       try {
-        const registry = JSON.parse(localStorage.getItem('tf_users_registry') || '[]')
-        const guestUser = registry.find(u => u.email === 'guest@taskflow.io')
-        setIsLoading(false)
-        if (guestUser) {
-          onLoginSuccess(guestUser)
-        } else {
-          onLoginSuccess({
-            name: 'Joe Godwin',
-            email: 'guest@taskflow.io',
-            password: 'password',
-            bio: 'Productivity enthusiast and SaaS engineer. Building the future of automated workspaces.',
-            joinDate: 'March 14, 2026',
-            avatar: 'JG',
-            notifications: { push: true, email: true, weeklyReports: true, soundToggle: true },
-            premium: true
-          })
+        const randomId = Math.random().toString(36).substring(2, 10)
+        const guestId = `guest_${randomId}`
+        
+        const guestUser = {
+          id: guestId,
+          name: 'Guest User',
+          email: `${guestId}@taskflow.io`,
+          password: 'guest-password-bypass',
+          bio: 'Productivity enthusiast and SaaS engineer. Building the future of automated workspaces.',
+          joinDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+          avatar: 'GU',
+          notifications: { push: true, email: true, weeklyReports: true, soundToggle: true },
+          premium: true,
+          isGuest: true
         }
+        
+        // Seed guest sandbox workspace
+        seedWorkspaceForUser(guestId, true)
+        
+        setIsLoading(false)
+        onLoginSuccess(guestUser)
       } catch {
         setIsLoading(false)
-        onLoginSuccess({
-          name: 'Joe Godwin',
-          email: 'guest@taskflow.io',
-          avatar: 'JG',
-          premium: true
-        })
+        setError('Failed to enter guest mode.')
       }
     }, 700)
   }
@@ -247,11 +297,16 @@ export default function Auth({ onLoginSuccess }) {
     setTimeout(() => {
       try {
         const email = `auth.${platform.toLowerCase()}@taskflow.io`
+        const emailHash = getEmailHash(email)
+        const prefix = platform.toLowerCase() === 'google' ? 'google' : 'github'
+        const userId = `${prefix}_${emailHash}`
+        
         const registry = JSON.parse(localStorage.getItem('tf_users_registry') || '[]')
         let userRecord = registry.find(u => u.email === email)
         
         if (!userRecord) {
           userRecord = {
+            id: userId,
             name: `${platform} User`,
             email: email,
             password: 'social-auth-bypass',
@@ -259,20 +314,35 @@ export default function Auth({ onLoginSuccess }) {
             joinDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
             avatar: platform.substring(0, 2).toUpperCase(),
             notifications: { push: true, email: true, weeklyReports: true, soundToggle: true },
-            premium: false
+            premium: platform.toLowerCase() === 'google',
+            isGuest: false
           }
           registry.push(userRecord)
           localStorage.setItem('tf_users_registry', JSON.stringify(registry))
         }
         
+        if (!userRecord.id) {
+          userRecord.id = userId
+        }
+        
+        // Seed with realistic stats so SSO workspaces are pre-populated!
+        seedWorkspaceForUser(userRecord.id, true)
+        
         setIsLoading(false)
         onLoginSuccess(userRecord)
       } catch {
         setIsLoading(false)
+        const email = `auth.${platform.toLowerCase()}@taskflow.io`
+        const emailHash = getEmailHash(email)
+        const prefix = platform.toLowerCase() === 'google' ? 'google' : 'github'
+        const userId = `${prefix}_${emailHash}`
         onLoginSuccess({
+          id: userId,
           name: `${platform} User`,
-          email: `auth.${platform.toLowerCase()}@taskflow.io`,
-          avatar: platform.substring(0, 2).toUpperCase()
+          email: email,
+          avatar: platform.substring(0, 2).toUpperCase(),
+          premium: platform.toLowerCase() === 'google',
+          isGuest: false
         })
       }
     }, 800)

@@ -7,8 +7,8 @@ import styles from './GoalTracker.module.css'
 const ICONS = ['🎯','🏆','🔥','⚡','🚀','💡','📈','🌟','💎','🛡️']
 const COLORS = ['#7c6af7','#f43f5e','#f59e0b','#10b981','#22d3ee','#ec4899','#6366f1']
 
-export default function GoalTracker() {
-  const { goals, addGoal, increment, decrement, deleteGoal, getProgress } = useGoals()
+export default function GoalTracker({ user }) {
+  const { goals, addGoal, increment, decrement, deleteGoal, getProgress } = useGoals(user)
   const [adding, setAdding] = useState(false)
   const [form, setForm] = useState({ title: '', target: '', unit: '', icon: '🎯', color: '#7c6af7', dueDate: '' })
 

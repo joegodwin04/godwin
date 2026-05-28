@@ -1,33 +1,7 @@
 // useTodos.js — Custom hook for all todo state management
-import { useState, useCallback, useMemo } from 'react'
-
-const getStorageKey = () => {
-  try {
-    const user = JSON.parse(localStorage.getItem('tf_user') || '{}')
-    return user.email ? `tf_${user.email}_todos` : 'taskflow_todos'
-  } catch {
-    return 'taskflow_todos'
-  }
-}
+import { useState, useEffect, useCallback, useMemo } from 'react'
 
 const generateId = () => `todo_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
-
-const loadFromStorage = () => {
-  try {
-    const raw = localStorage.getItem(getStorageKey())
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
-}
-
-const saveToStorage = (todos) => {
-  try {
-    localStorage.setItem(getStorageKey(), JSON.stringify(todos))
-  } catch (e) {
-    console.warn('Failed to save todos', e)
-  }
-}
 
 export const PRIORITIES = {
   high:   { label: 'High',   color: '#f43f5e', bg: 'rgba(244,63,94,0.1)',   icon: '🔴' },
@@ -45,18 +19,45 @@ export const CATEGORIES = [
   { id: 'other',    label: 'Other',    icon: '✨', color: '#38bdf8' },
 ]
 
-export function useTodos() {
-  const [todos, setTodos] = useState(loadFromStorage)
+export function useTodos(user) {
+  const getStorageKey = useCallback(() => {
+    const userId = user?.id || 'guest'
+    return `taskflow_${userId}_tasks`
+  }, [user?.id])
+
+  const loadFromStorage = useCallback(() => {
+    try {
+      const raw = localStorage.getItem(getStorageKey())
+      return raw ? JSON.parse(raw) : []
+    } catch {
+      return []
+    }
+  }, [getStorageKey])
+
+  const saveToStorage = useCallback((todosList) => {
+    try {
+      localStorage.setItem(getStorageKey(), JSON.stringify(todosList))
+    } catch (e) {
+      console.warn('Failed to save todos', e)
+    }
+  }, [getStorageKey])
+
+  const [todos, setTodos] = useState(() => loadFromStorage())
   const [filter, setFilter] = useState('all')       // all | active | completed
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [priorityFilter, setPriorityFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState('createdAt') // createdAt | dueDate | priority | alpha
 
+  // Reload todos reactively when user session changes
+  useEffect(() => {
+    setTodos(loadFromStorage())
+  }, [user?.id, loadFromStorage])
+
   const persist = useCallback((newTodos) => {
     setTodos(newTodos)
     saveToStorage(newTodos)
-  }, [])
+  }, [saveToStorage])
 
   const addTodo = useCallback((data) => {
     const newTodo = {
@@ -70,12 +71,12 @@ export function useTodos() {
       createdAt: new Date().toISOString(),
       completedAt: null,
     }
-    persist(prev => {
+    setTodos(prev => {
       const next = [newTodo, ...prev]
       saveToStorage(next)
       return next
     })
-  }, [persist])
+  }, [saveToStorage])
 
   const toggleTodo = useCallback((id) => {
     setTodos(prev => {
@@ -87,7 +88,7 @@ export function useTodos() {
       saveToStorage(next)
       return next
     })
-  }, [])
+  }, [saveToStorage])
 
   const deleteTodo = useCallback((id) => {
     setTodos(prev => {
@@ -95,7 +96,7 @@ export function useTodos() {
       saveToStorage(next)
       return next
     })
-  }, [])
+  }, [saveToStorage])
 
   const updateTodo = useCallback((id, updates) => {
     setTodos(prev => {
@@ -103,7 +104,7 @@ export function useTodos() {
       saveToStorage(next)
       return next
     })
-  }, [])
+  }, [saveToStorage])
 
   const clearCompleted = useCallback(() => {
     setTodos(prev => {
@@ -111,7 +112,7 @@ export function useTodos() {
       saveToStorage(next)
       return next
     })
-  }, [])
+  }, [saveToStorage])
 
   const reorderTodo = useCallback((fromIndex, toIndex) => {
     setTodos(prev => {
@@ -121,7 +122,7 @@ export function useTodos() {
       saveToStorage(next)
       return next
     })
-  }, [])
+  }, [saveToStorage])
 
   const filteredTodos = useMemo(() => {
     let result = [...todos]
@@ -190,3 +191,4 @@ export function useTodos() {
     reorderTodo,
   }
 }
+

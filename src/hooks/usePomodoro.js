@@ -6,22 +6,23 @@ const SHORT_SECS =  5 * 60
 const LONG_SECS  = 15 * 60
 const MODE_TIMES = { work: WORK_SECS, short: SHORT_SECS, long: LONG_SECS }
 
-const getStorageKey = () => {
-  try {
-    const user = JSON.parse(localStorage.getItem('tf_user') || '{}')
-    return user.email ? `tf_${user.email}_pomo_sessions` : 'tf_pomo_sessions'
-  } catch {
-    return 'tf_pomo_sessions'
-  }
-}
+export function usePomodoro(user) {
+  const getStorageKey = useCallback(() => {
+    const userId = user?.id || 'guest'
+    return `taskflow_${userId}_analytics`
+  }, [user?.id])
 
-export function usePomodoro() {
   const [mode, setMode]       = useState('work')   // 'work' | 'short' | 'long'
   const [timeLeft, setTimeLeft] = useState(WORK_SECS)
   const [running, setRunning]   = useState(false)
   const [sessions, setSessions] = useState(
     () => parseInt(localStorage.getItem(getStorageKey()) || '0', 10)
   )
+
+  // Reload sessions reactively when user session changes
+  useEffect(() => {
+    setSessions(parseInt(localStorage.getItem(getStorageKey()) || '0', 10))
+  }, [user?.id, getStorageKey])
 
   // Countdown
   useEffect(() => {
@@ -50,7 +51,7 @@ export function usePomodoro() {
         }
       }, 0)
     }
-  }, [timeLeft, running, mode])
+  }, [timeLeft, running, mode, getStorageKey])
 
   const toggle    = useCallback(() => setRunning(r => !r), [])
   const reset     = useCallback(() => { setRunning(false); setTimeLeft(MODE_TIMES[mode]) }, [mode])
@@ -63,3 +64,4 @@ export function usePomodoro() {
 
   return { mode, timeLeft, running, sessions, progress, mm, ss, toggle, reset, switchMode, WORK_SECS, SHORT_SECS, LONG_SECS }
 }
+

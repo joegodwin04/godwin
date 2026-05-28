@@ -1,14 +1,5 @@
 // useGoals.js — Goal tracking with progress and localStorage
-import { useState, useCallback } from 'react'
-
-const getStorageKey = () => {
-  try {
-    const user = JSON.parse(localStorage.getItem('tf_user') || '{}')
-    return user.email ? `tf_${user.email}_goals` : 'tf_goals'
-  } catch {
-    return 'tf_goals'
-  }
-}
+import { useState, useEffect, useCallback } from 'react'
 
 const DEFAULT_GOALS = [
   { id: 'g_default_1', title: 'Complete 50 tasks', icon: '🎯', color: '#7c6af7', target: 50, current: 0, unit: 'tasks', dueDate: '', createdAt: new Date().toISOString() },
@@ -16,27 +7,41 @@ const DEFAULT_GOALS = [
   { id: 'g_default_3', title: 'Focus sessions this month', icon: '⏱️', color: '#10b981', target: 20, current: 0, unit: 'sessions', dueDate: '', createdAt: new Date().toISOString() },
 ]
 
-const load = () => {
-  try {
-    const raw = localStorage.getItem(getStorageKey())
-    return raw ? JSON.parse(raw) : DEFAULT_GOALS
-  } catch { return DEFAULT_GOALS }
-}
+export function useGoals(user) {
+  const getStorageKey = useCallback(() => {
+    const userId = user?.id || 'guest'
+    return `taskflow_${userId}_goals`
+  }, [user?.id])
 
-export function useGoals() {
-  const [goals, setGoals] = useState(load)
+  const load = useCallback(() => {
+    try {
+      const raw = localStorage.getItem(getStorageKey())
+      return raw ? JSON.parse(raw) : DEFAULT_GOALS
+    } catch { return DEFAULT_GOALS }
+  }, [getStorageKey])
+
+  const save = useCallback((goalsList) => {
+    try {
+      localStorage.setItem(getStorageKey(), JSON.stringify(goalsList))
+    } catch (e) {
+      console.warn('Failed to save goals', e)
+    }
+  }, [getStorageKey])
+
+  const [goals, setGoals] = useState(() => load())
+
+  // Reload goals reactively when user session changes
+  useEffect(() => {
+    setGoals(load())
+  }, [user?.id, load])
 
   const persist = useCallback((next) => {
     setGoals(next)
-    try {
-      localStorage.setItem(getStorageKey(), JSON.stringify(next))
-    } catch (e) {
-      console.warn('Failed to persist goals', e)
-    }
-  }, [])
+    save(next)
+  }, [save])
 
   const addGoal = useCallback((data) => {
-    persist(prev => {
+    setGoals(prev => {
       const next = [...prev, {
         id: `g_${Date.now()}`,
         title: data.title.trim(),
@@ -48,40 +53,41 @@ export function useGoals() {
         dueDate: data.dueDate || '',
         createdAt: new Date().toISOString(),
       }]
-      localStorage.setItem(getStorageKey(), JSON.stringify(next))
+      save(next)
       return next
     })
-  }, [persist])
+  }, [save])
 
   const increment = useCallback((id, by = 1) => {
     setGoals(prev => {
       const next = prev.map(g =>
         g.id === id ? { ...g, current: Math.min(g.current + by, g.target) } : g
       )
-      localStorage.setItem(getStorageKey(), JSON.stringify(next))
+      save(next)
       return next
     })
-  }, [])
+  }, [save])
 
   const decrement = useCallback((id) => {
     setGoals(prev => {
       const next = prev.map(g =>
         g.id === id ? { ...g, current: Math.max(g.current - 1, 0) } : g
       )
-      localStorage.setItem(getStorageKey(), JSON.stringify(next))
+      save(next)
       return next
     })
-  }, [])
+  }, [save])
 
   const deleteGoal = useCallback((id) => {
     setGoals(prev => {
       const next = prev.filter(g => g.id !== id)
-      localStorage.setItem(getStorageKey(), JSON.stringify(next))
+      save(next)
       return next
     })
-  }, [])
+  }, [save])
 
   const getProgress = (goal) => goal.target > 0 ? Math.round((goal.current / goal.target) * 100) : 0
 
   return { goals, addGoal, increment, decrement, deleteGoal, getProgress }
 }
+

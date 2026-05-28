@@ -1,35 +1,11 @@
 // useHabits.js — Habit tracking with streaks and daily completions
-import { useState, useCallback } from 'react'
-
-const getStorageKey = () => {
-  try {
-    const user = JSON.parse(localStorage.getItem('tf_user') || '{}')
-    return user.email ? `tf_${user.email}_habits` : 'tf_habits'
-  } catch {
-    return 'tf_habits'
-  }
-}
+import { useState, useEffect, useCallback } from 'react'
 
 const DEFAULT_HABITS = [
   { id: 'h_default_1', name: 'Morning workout', icon: '💪', color: '#f43f5e', completions: {}, createdAt: new Date().toISOString() },
   { id: 'h_default_2', name: 'Read 20 minutes', icon: '📚', color: '#f59e0b', completions: {}, createdAt: new Date().toISOString() },
   { id: 'h_default_3', name: 'Drink 8 glasses', icon: '💧', color: '#22d3ee', completions: {}, createdAt: new Date().toISOString() },
 ]
-
-const load = () => {
-  try {
-    const raw = localStorage.getItem(getStorageKey())
-    return raw ? JSON.parse(raw) : DEFAULT_HABITS
-  } catch { return DEFAULT_HABITS }
-}
-
-const save = (habits) => {
-  try {
-    localStorage.setItem(getStorageKey(), JSON.stringify(habits))
-  } catch (e) {
-    console.warn('Failed to save habits', e)
-  }
-}
 
 const today = () => new Date().toISOString().split('T')[0]
 
@@ -39,13 +15,38 @@ const dateStr = (daysAgo = 0) => {
   return d.toISOString().split('T')[0]
 }
 
-export function useHabits() {
-  const [habits, setHabits] = useState(load)
+export function useHabits(user) {
+  const getStorageKey = useCallback(() => {
+    const userId = user?.id || 'guest'
+    return `taskflow_${userId}_habits`
+  }, [user?.id])
+
+  const load = useCallback(() => {
+    try {
+      const raw = localStorage.getItem(getStorageKey())
+      return raw ? JSON.parse(raw) : DEFAULT_HABITS
+    } catch { return DEFAULT_HABITS }
+  }, [getStorageKey])
+
+  const save = useCallback((habitsList) => {
+    try {
+      localStorage.setItem(getStorageKey(), JSON.stringify(habitsList))
+    } catch (e) {
+      console.warn('Failed to save habits', e)
+    }
+  }, [getStorageKey])
+
+  const [habits, setHabits] = useState(() => load())
+
+  // Reload habits reactively when user session changes
+  useEffect(() => {
+    setHabits(load())
+  }, [user?.id, load])
 
   const persist = useCallback((next) => {
     setHabits(next)
     save(next)
-  }, [])
+  }, [save])
 
   const addHabit = useCallback((data) => {
     const h = {
@@ -56,8 +57,12 @@ export function useHabits() {
       completions: {},
       createdAt: new Date().toISOString(),
     }
-    persist(prev => { const next = [...prev, h]; save(next); return next })
-  }, [persist])
+    setHabits(prev => {
+      const next = [...prev, h]
+      save(next)
+      return next
+    })
+  }, [save])
 
   const toggleHabit = useCallback((id, date = today()) => {
     setHabits(prev => {
@@ -69,11 +74,15 @@ export function useHabits() {
       save(next)
       return next
     })
-  }, [])
+  }, [save])
 
   const deleteHabit = useCallback((id) => {
-    setHabits(prev => { const next = prev.filter(h => h.id !== id); save(next); return next })
-  }, [])
+    setHabits(prev => {
+      const next = prev.filter(h => h.id !== id)
+      save(next)
+      return next
+    })
+  }, [save])
 
   // Calculate current streak (consecutive days ending today or yesterday)
   const getStreak = useCallback((habit) => {
@@ -113,3 +122,4 @@ export function useHabits() {
     today,
   }
 }
+

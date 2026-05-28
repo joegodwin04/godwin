@@ -1,7 +1,10 @@
 // SettingsModal.jsx — Workspace settings and command center with PDF generator
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { jsPDF } from 'jspdf'
+import html2canvas from 'html2canvas'
 import styles from './SettingsModal.module.css'
+import PrintableReport from './PrintableReport'
 
 export default function SettingsModal({
   activeTab,
@@ -10,6 +13,7 @@ export default function SettingsModal({
   user,
   setUser,
   stats,
+  todos,
   pomoSessions,
   showToast
 }) {
@@ -35,11 +39,68 @@ export default function SettingsModal({
   const [notifWeekly, setNotifWeekly] = useState(user?.notifications?.weeklyReports ?? true)
   const [notifSound, setNotifSound] = useState(user?.notifications?.soundToggle ?? true)
 
-  // Retrieve count metrics
-  const completedCount = stats.completed || 0
-  const activeCount = stats.active || 0
-  const completionRate = stats.completionRate || 0
-  const streakDays = 7 // Mocked premium streak loop
+  // Streaks and statistics helper metrics
+  const liveHabits = (() => {
+    try {
+      const key = `taskflow_${user?.id || 'guest'}_habits`
+      const raw = localStorage.getItem(key)
+      return raw ? JSON.parse(raw) : []
+    } catch {
+      return []
+    }
+  })()
+
+  const liveGoals = (() => {
+    try {
+      const key = `taskflow_${user?.id || 'guest'}_goals`
+      const raw = localStorage.getItem(key)
+      return raw ? JSON.parse(raw) : []
+    } catch {
+      return []
+    }
+  })()
+
+  const completedCount = todos ? todos.filter(t => t.completed).length : stats.completed || 0
+  const activeCount = todos ? todos.filter(t => !t.completed).length : stats.active || 0
+  const totalCount = todos ? todos.length : stats.total || 0
+  const completionRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : stats.completionRate || 0
+
+  const dateStrHelper = (daysAgo = 0) => {
+    const d = new Date()
+    d.setDate(d.getDate() - daysAgo)
+    return d.toISOString().split('T')[0]
+  }
+
+  const getStreakHelper = (habit) => {
+    if (!habit.completions) return 0
+    let streak = 0
+    for (let i = 0; i < 365; i++) {
+      const d = dateStrHelper(i)
+      if (habit.completions[d]) streak++
+      else if (i > 0) break
+    }
+    return streak
+  }
+
+  const longestStreak = liveHabits.length > 0
+    ? liveHabits.reduce((max, h) => Math.max(max, getStreakHelper(h)), 0)
+    : 7
+
+  const getGoalProgress = (goal) => {
+    return goal.target > 0 ? Math.round((goal.current / goal.target) * 100) : 0
+  }
+
+  const getHabitLast7Days = (habit) => {
+    return Array.from({ length: 7 }, (_, i) => {
+      const ago = 6 - i
+      const d = dateStrHelper(ago)
+      const label = new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'narrow' })
+      return { date: d, label, done: !!(habit.completions && habit.completions[d]) }
+    })
+  }
+
+  // Live streak alias for profile and stats tabs
+  const streakDays = longestStreak
 
   // Get active user registry database
   const getUsersRegistry = () => {
@@ -130,209 +191,64 @@ export default function SettingsModal({
     showToast('Notification layout changes saved.', 'success')
   }
 
-  // Printable HTML/CSS PDF report generator
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
+
+
+
+  // Premium PDF report generator using jsPDF and html2canvas
   const handleGenerateReport = () => {
-    const printWindow = window.open('', '_blank')
-    const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-    const activeGoals = 3 // Standard premium seeded metrics
-    const habitsCompleted = 12
+    setIsGeneratingPDF(true)
+    showToast('Compiling premium analytics...', 'success')
 
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <title>TaskFlow Productivity Report — ${user?.name}</title>
-        <style>
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-          body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            color: #0f0e2a;
-            background: #ffffff;
-            margin: 0;
-            padding: 40px;
-            line-height: 1.5;
-          }
-          .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #7c6af7;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-          }
-          .title-area h1 {
-            font-size: 28px;
-            font-weight: 800;
-            margin: 0;
-            color: #7c6af7;
-            letter-spacing: -0.03em;
-          }
-          .title-area p {
-            font-size: 13px;
-            color: #6561a0;
-            margin: 4px 0 0 0;
-          }
-          .meta-area {
-            text-align: right;
-            font-size: 13px;
-            color: #6561a0;
-          }
-          .meta-area strong {
-            color: #0f0e2a;
-          }
-          .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-          }
-          .stat-card {
-            border: 1px solid #d8d4ef;
-            border-radius: 12px;
-            padding: 20px;
-            background: #f8f7fe;
-            text-align: center;
-          }
-          .stat-val {
-            font-size: 32px;
-            font-weight: 800;
-            color: #7c6af7;
-            margin: 0 0 6px 0;
-            letter-spacing: -0.04em;
-          }
-          .stat-lbl {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #6561a0;
-          }
-          .section-title {
-            font-size: 18px;
-            font-weight: 800;
-            color: #0f0e2a;
-            border-bottom: 1px solid #ebe8f8;
-            padding-bottom: 8px;
-            margin-bottom: 16px;
-            margin-top: 30px;
-            letter-spacing: -0.02em;
-          }
-          .score-box {
-            border: 1px solid #7c6af7;
-            border-radius: 12px;
-            padding: 20px;
-            background: linear-gradient(135deg, rgba(124,106,247,0.05), rgba(34,211,238,0.05));
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-          }
-          .score-text {
-            max-width: 70%;
-          }
-          .score-text h3 {
-            font-size: 16px;
-            font-weight: 800;
-            margin: 0 0 6px 0;
-          }
-          .score-text p {
-            font-size: 12.5px;
-            color: #3c3960;
-            margin: 0;
-          }
-          .score-circle {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            border: 4px solid #7c6af7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: 800;
-            color: #7c6af7;
-          }
-          .footer {
-            text-align: center;
-            font-size: 11px;
-            color: #9d9bbf;
-            border-top: 1px solid #ebe8f8;
-            padding-top: 20px;
-            margin-top: 50px;
-          }
-          @media print {
-            body { padding: 0; }
-            button { display: none; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <div class="title-area">
-            <h1>TASKFLOW PRODUCTIVITY REPORT</h1>
-            <p>SaaS Premium Productivity Dashboard Analytics</p>
-          </div>
-          <div class="meta-area">
-            User: <strong>${user?.name}</strong><br>
-            Email: <strong>${user?.email}</strong><br>
-            Generated: <strong>${dateStr}</strong>
-          </div>
-        </div>
-        
-        <div class="score-box">
-          <div class="score-text">
-            <h3>TaskFlow Productivity Score</h3>
-            <p>${
-              completionRate >= 80 
-                ? "Exceptional workload management! Your completion rate is in the top 5% of all Pro workspace builders. Maintain your current daily workflow habit loop."
-                : completionRate >= 50
-                ? "Good consistent progress. Continue managing task categorizations and structuring focus sessions to push through backlog tasks."
-                : "Consider breaking large projects into micro-tasks and initiating short 25-minute Pomodoro sessions to gain momentum."
-            }</p>
-          </div>
-          <div class="score-circle">
-            ${completionRate}%
-          </div>
-        </div>
+    setTimeout(async () => {
+      try {
+        const page1El = document.getElementById('premium-report-page-1')
+        const page2El = document.getElementById('premium-report-page-2')
 
-        <div class="grid">
-          <div class="stat-card">
-            <div class="stat-val">${completedCount}</div>
-            <div class="stat-lbl">Tasks Completed</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-val">${streakDays} Days</div>
-            <div class="stat-lbl">Habit Streak</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-val">${pomoSessions}</div>
-            <div class="stat-lbl">Focus Timer Sessions</div>
-          </div>
-        </div>
+        if (!page1El || !page2El) {
+          throw new Error('PDF layout elements not found in the DOM.')
+        }
 
-        <div class="section-title">Current Workspace Summary</div>
-        <p style="font-size: 13.5px; color: #3c3960;">
-          The user <strong>${user?.name}</strong> has a registered account join date of <strong>${user?.joinDate || 'January 2026'}</strong>. Their profile currently shows an active workload of <strong>${activeCount}</strong> tasks pending completion. In their daily cockpit loop, they have maintained <strong>${habitsCompleted}</strong> habit completions with <strong>${activeGoals}</strong> active workspace goals set.
-        </p>
+        // Initialize A4 Portrait PDF
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        })
 
-        <div class="footer">
-          Generated automatically by TaskFlow Premium Productivity Suite — v5.0. Confidential Business Report.
-        </div>
-        
-        <script>
-          window.onload = function() {
-            setTimeout(function() {
-              window.print();
-            }, 500);
-          }
-        </script>
-      </body>
-      </html>
-    `
-    printWindow.document.write(htmlContent)
-    printWindow.document.close()
-    showToast('Productivity report PDF generated!', 'success')
+        // Capture Page 1
+        const canvas1 = await html2canvas(page1El, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#f8fafc'
+        })
+        const imgData1 = canvas1.toDataURL('image/jpeg', 0.95)
+        pdf.addImage(imgData1, 'JPEG', 0, 0, 210, 297)
+
+        // Capture Page 2
+        pdf.addPage()
+        const canvas2 = await html2canvas(page2El, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#f8fafc'
+        })
+        const imgData2 = canvas2.toDataURL('image/jpeg', 0.95)
+        pdf.addImage(imgData2, 'JPEG', 0, 0, 210, 297)
+
+        // Save file with filename format TaskFlow-Pro-Report-YYYY-MM-DD.pdf
+        const todayDate = new Date().toISOString().split('T')[0]
+        pdf.save(`TaskFlow-Pro-Report-${todayDate}.pdf`)
+
+        showToast('Premium report downloaded successfully!', 'success')
+      } catch (err) {
+        console.error('Failed to generate PDF:', err)
+        showToast('Error compiling high-fidelity PDF report.', 'error')
+      } finally {
+        setIsGeneratingPDF(false)
+      }
+    }, 600)
   }
 
   return (
@@ -614,8 +530,29 @@ export default function SettingsModal({
                   type="button"
                   className={styles.reportCta}
                   onClick={handleGenerateReport}
+                  disabled={isGeneratingPDF}
+                  style={{
+                    opacity: isGeneratingPDF ? 0.7 : 1,
+                    cursor: isGeneratingPDF ? 'not-allowed' : 'pointer'
+                  }}
                 >
-                  ⚡ Generate PDF Report
+                  {isGeneratingPDF ? (
+                    <>
+                      <span className={styles.spinner} style={{
+                        display: 'inline-block',
+                        width: '12px',
+                        height: '12px',
+                        border: '2px solid rgba(255,255,255,0.3)',
+                        borderTopColor: '#fff',
+                        borderRadius: '50%',
+                        animation: 'spin 0.8s linear infinite',
+                        marginRight: '8px'
+                      }} />
+                      Generating Premium Report...
+                    </>
+                  ) : (
+                    '⚡ Generate PDF Report'
+                  )}
                 </button>
               </div>
             )}
@@ -625,6 +562,36 @@ export default function SettingsModal({
         </main>
         
       </div>
+
+      {/* Hidden Premium PDF Report Rendering Containers */}
+      <div style={{
+        position: 'absolute',
+        left: '-9999px',
+        top: '-9999px',
+        width: '800px',
+        display: 'block'
+      }}>
+        <PrintableReport
+          user={user}
+          todos={todos}
+          stats={stats}
+          pomoSessions={pomoSessions}
+          liveGoals={liveGoals}
+          liveHabits={liveHabits}
+          longestStreak={longestStreak}
+          completionRate={completionRate}
+          completedCount={completedCount}
+          activeCount={activeCount}
+        />
+      </div>
+
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+
     </div>
   )
 }

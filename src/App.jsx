@@ -50,6 +50,18 @@ export default function App() {
   }
 
   const handleLogout = () => {
+    if (user && user.id && user.id.startsWith('guest_')) {
+      // Clear this guest's temporary session data
+      const keysToClear = [
+        `taskflow_${user.id}_tasks`,
+        `taskflow_${user.id}_habits`,
+        `taskflow_${user.id}_goals`,
+        `taskflow_${user.id}_analytics`,
+        `taskflow_${user.id}_settings`,
+        `taskflow_${user.id}_reports`
+      ]
+      keysToClear.forEach(k => localStorage.removeItem(k))
+    }
     setUser(null)
     localStorage.removeItem('tf_user')
   }
@@ -62,7 +74,7 @@ export default function App() {
     searchQuery, setSearchQuery,
     sortBy, setSortBy,
     addTodo, toggleTodo, deleteTodo, updateTodo, clearCompleted,
-  } = useTodos()
+  } = useTodos(user)
 
   const handleSetView = (v) => {
     setView(v)
@@ -279,8 +291,11 @@ export default function App() {
                       <button className={styles.menuItem} onClick={() => { setProfileOpen(false); toggleTheme(); }}>
                         <span className={styles.menuItemIcon}>{theme === 'dark' ? '☀️' : '🌙'}</span> Toggle Theme Mode
                       </button>
+                      <button className={styles.menuItem} onClick={() => { setProfileOpen(false); setActiveSettingsTab('reports'); }}>
+                        <span className={styles.menuItemIcon}>📈</span> Export PDF Reports
+                      </button>
                       <button className={styles.menuItem} onClick={() => { setProfileOpen(false); setActiveSettingsTab('billing'); }}>
-                        <span className={styles.menuItemIcon}>🚀</span> Upgrade Account
+                        <span className={styles.menuItemIcon}>🚀</span> Workspace Settings & Billing
                       </button>
 
                       <div className={styles.menuDivider} />
@@ -331,7 +346,7 @@ export default function App() {
               <motion.div key="habits" className={styles.singleView} {...pageVariants}>
                 <h2 className={styles.pageTitle}>🔥 Habit Tracker</h2>
                 <p className={styles.pageSub}>Build consistent habits and track your streaks every day.</p>
-                <HabitTracker />
+                <HabitTracker user={user} />
               </motion.div>
             )}
 
@@ -339,7 +354,7 @@ export default function App() {
               <motion.div key="goals" className={styles.singleView} {...pageVariants}>
                 <h2 className={styles.pageTitle}>🎯 Goals</h2>
                 <p className={styles.pageSub}>Set meaningful goals and track your progress toward them.</p>
-                <GoalTracker />
+                <GoalTracker user={user} />
               </motion.div>
             )}
 
@@ -348,7 +363,7 @@ export default function App() {
                 <h2 className={styles.pageTitle}>⏱ Focus Timer</h2>
                 <p className={styles.pageSub}>Use the Pomodoro technique to stay in the zone.</p>
                 <div className={styles.focusLayout}>
-                  <PomodoroTimer />
+                  <PomodoroTimer user={user} />
                   <div className={styles.focusTips}>
                     <div className={styles.tipCard}>
                       <span className={styles.tipIcon}>🎯</span>
@@ -426,7 +441,7 @@ export default function App() {
               setUser={setUser}
               stats={stats}
               todos={todos}
-              pomoSessions={parseInt(localStorage.getItem(`tf_${user?.email || 'guest'}_pomo_sessions`) || '0', 10)}
+              pomoSessions={parseInt(localStorage.getItem(`taskflow_${user?.id || 'guest'}_analytics`) || '0', 10)}
               showToast={showToast}
             />
           )}

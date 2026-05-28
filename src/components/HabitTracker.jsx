@@ -7,8 +7,8 @@ import styles from './HabitTracker.module.css'
 const PRESET_ICONS = ['💪', '📚', '💧', '🧘', '🏃', '🥗', '😴', '✍️', '🎯', '🌿', '🎨', '🎵']
 const PRESET_COLORS = ['#7c6af7', '#f43f5e', '#f59e0b', '#10b981', '#22d3ee', '#ec4899', '#6366f1', '#14b8a6']
 
-export default function HabitTracker() {
-  const { habits, addHabit, toggleHabit, deleteHabit, getStreak, getLastNDays, completedToday, totalToday } = useHabits()
+export default function HabitTracker({ user }) {
+  const { habits, addHabit, toggleHabit, deleteHabit, getStreak, getLastNDays, completedToday, totalToday } = useHabits(user)
   const [adding, setAdding] = useState(false)
   const [newName, setNewName] = useState('')
   const [newIcon, setNewIcon] = useState('💪')
