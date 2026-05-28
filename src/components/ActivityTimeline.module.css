@@ -1,16 +1,17 @@
-/* ActivityTimeline.module.css */
+/* ActivityTimeline.module.css — Light + Dark v4 */
 
 .wrap {
   background: var(--bg-glass);
   border: 1px solid var(--border-subtle);
   border-radius: var(--r-lg);
-  padding: 20px;
+  padding: clamp(16px, 2.5vw, 22px);
   backdrop-filter: blur(18px);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   overflow: hidden;
   position: relative;
+  box-shadow: var(--shadow-xs);
 }
 .wrap::before {
   content: '';
@@ -19,17 +20,18 @@
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
 }
 
-.header { display: flex; align-items: center; justify-content: space-between; }
-.title { font-size: 14px; font-weight: 800; color: var(--text-200); }
+.header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.title { font-size: 14px; font-weight: 800; color: var(--text-200); letter-spacing: -0.01em; }
 .badge {
   font-size: 10px; font-weight: 700;
-  padding: 3px 9px;
+  padding: 3px 10px;
   border-radius: var(--r-full);
   background: var(--violet-dim);
   color: var(--violet-light);
   border: 1px solid rgba(124,106,247,0.2);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .list { display: flex; flex-direction: column; gap: 0; }
@@ -53,7 +55,9 @@
   font-weight: 800;
   flex-shrink: 0;
   z-index: 1;
+  transition: transform 0.2s;
 }
+.item:hover .dot { transform: scale(1.1); }
 .dotCreated {
   background: rgba(124,106,247,0.15);
   color: var(--violet-light);
@@ -79,7 +83,10 @@
   padding-top: 3px;
   min-width: 0;
 }
-.action { font-size: 10px; color: var(--text-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.action {
+  font-size: 10px; color: var(--text-400); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
 .taskText {
   font-size: 12.5px;
   color: var(--text-200);
@@ -88,13 +95,36 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.meta { display: flex; align-items: center; gap: 8px; font-size: 10.5px; }
+.meta { display: flex; align-items: center; gap: 8px; font-size: 10.5px; flex-wrap: wrap; }
 .time { color: var(--text-400); }
 
+/* ── Empty ── */
 .empty {
   display: flex; flex-direction: column; align-items: center;
-  gap: 8px; padding: 24px; text-align: center;
-  color: var(--text-400); font-size: 13px;
-  font-style: italic;
+  gap: 8px; padding: 28px 16px; text-align: center;
+  color: var(--text-400); font-size: 13px; line-height: 1.6;
 }
-.empty span { font-size: 26px; }
+.empty span { font-size: 32px; display: block; margin-bottom: 4px; }
+
+/* ============================================================
+   LIGHT MODE OVERRIDES
+   ============================================================ */
+[data-theme="light"] .wrap {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(124, 106, 247, 0.14);
+  box-shadow: 0 2px 12px rgba(124,106,247,0.09), 0 1px 3px rgba(0,0,0,0.04);
+}
+[data-theme="light"] .wrap::before {
+  background: linear-gradient(90deg, transparent, rgba(124,106,247,0.08), transparent);
+}
+[data-theme="light"] .dotCreated {
+  background: rgba(124,106,247,0.10);
+  border-color: rgba(124,106,247,0.25);
+}
+[data-theme="light"] .dotDone {
+  background: rgba(16,185,129,0.10);
+  border-color: rgba(16,185,129,0.25);
+}
+[data-theme="light"] .line {
+  background: rgba(124, 106, 247, 0.12);
+}

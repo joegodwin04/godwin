@@ -1,160 +1,85 @@
-/* PomodoroTimer.module.css */
+/* PomodoroTimer.module.css — Professional Light + Dark v5 */
 
 .wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding: 22px 18px;
-  background: var(--bg-glass);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-lg);
-  backdrop-filter: blur(18px);
-  position: relative;
-  overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  padding: clamp(16px, 2.5vw, 24px) clamp(14px, 2vw, 20px);
+  background: var(--bg-glass); border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg); backdrop-filter: blur(18px);
+  position: relative; overflow: hidden; box-shadow: var(--shadow-xs);
 }
 .wrap::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
 }
 
 /* Mode tabs */
 .modeTabs {
-  display: flex;
-  gap: 4px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-full);
-  padding: 3px;
-  width: 100%;
+  display: flex; gap: 2px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle);
+  border-radius: var(--r-full); padding: 3px; width: 100%;
 }
 .modeTab {
-  flex: 1;
-  padding: 5px 8px;
-  border: none;
-  border-radius: var(--r-full);
-  background: transparent;
-  color: var(--text-400);
-  font-size: 11px;
-  font-family: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
+  flex: 1; padding: 6px 6px; border: none; border-radius: var(--r-full);
+  background: transparent; color: var(--text-400); font-size: 11px;
+  font-family: inherit; font-weight: 600; cursor: pointer; transition: all 0.18s; white-space: nowrap; min-height: 28px;
 }
 .modeTab:hover { color: var(--text-200); }
 .modeTabActive {
-  background: color-mix(in srgb, var(--mc, var(--violet)) 18%, transparent);
+  background: color-mix(in srgb, var(--mc, var(--violet)) 16%, transparent);
   color: var(--mc, var(--violet));
-  box-shadow: 0 0 10px color-mix(in srgb, var(--mc, var(--violet)) 30%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--mc, var(--violet)) 22%, transparent);
 }
 
 /* Ring */
-.ringWrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.ringCenter {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-}
-.time {
-  font-size: 32px;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.modeLabel {
-  font-size: 10.5px;
-  color: var(--text-400);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
+.ringWrap { position: relative; display: flex; align-items: center; justify-content: center; }
+.ringCenter { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.time { font-size: 30px; font-weight: 900; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.modeLabel { font-size: 9.5px; color: var(--text-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
 
 /* Controls */
-.controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
+.controls { display: flex; align-items: center; gap: 9px; width: 100%; }
 .resetBtn {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-glass);
-  color: var(--text-300);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  flex-shrink: 0;
+  width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border-subtle);
+  background: var(--bg-glass); color: var(--text-300); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.18s; flex-shrink: 0;
 }
-.resetBtn:hover { color: var(--text-200); border-color: var(--border-default); }
-
+.resetBtn:hover { color: var(--text-200); border-color: var(--border-default); background: var(--bg-glass-md); }
 .playBtn {
-  flex: 1;
-  height: 38px;
-  border: none;
-  border-radius: var(--r-md);
-  background: color-mix(in srgb, var(--mc, var(--violet)) 20%, transparent);
-  color: var(--mc, var(--violet));
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  border: 1px solid color-mix(in srgb, var(--mc, var(--violet)) 30%, transparent);
-  transition: all 0.22s var(--ease-spring);
+  flex: 1; height: 38px; border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--mc, var(--violet)) 16%, transparent);
+  color: var(--mc, var(--violet)); font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  border: 1px solid color-mix(in srgb, var(--mc, var(--violet)) 28%, transparent);
+  transition: all 0.2s var(--ease-spring);
 }
-.playBtn:hover {
-  background: color-mix(in srgb, var(--mc, var(--violet)) 30%, transparent);
-  box-shadow: 0 0 20px var(--mg, var(--violet-glow));
-  transform: translateY(-1px);
-}
-.pauseBtn {
-  background: rgba(244,63,94,0.15);
-  color: var(--rose);
-  border-color: rgba(244,63,94,0.3);
-}
+.playBtn:hover { background: color-mix(in srgb, var(--mc, var(--violet)) 26%, transparent); transform: translateY(-1px); }
+.pauseBtn { background: rgba(244,63,94,0.10); color: var(--rose); border-color: rgba(244,63,94,0.26); }
+.pauseBtn:hover { background: rgba(244,63,94,0.18); }
 
 /* Sessions */
 .sessions {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-subtle);
+  width: 100%; display: flex; flex-direction: column; align-items: center; gap: 7px;
+  padding-top: 11px; border-top: 1px solid var(--border-subtle);
 }
-.sessionLabel { font-size: 10px; color: var(--text-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; }
-.sessionDots { display: flex; gap: 7px; }
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.1);
-  transition: all 0.3s;
-}
+.sessionLabel { font-size: 9.5px; color: var(--text-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; }
+.sessionDots { display: flex; gap: 6px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); transition: all 0.3s; }
 .dotFilled { border-color: transparent; }
 .sessionCount { font-size: 11px; color: var(--text-300); font-weight: 600; }
-
-.compact { padding: 16px 14px; gap: 12px; }
+.compact { padding: 14px 12px; gap: 11px; }
 .compact .time { font-size: 26px; }
+
+/* ═══ LIGHT MODE ═══ */
+[data-theme="light"] .wrap { background: var(--bg-elevated); border-color: var(--border-default); box-shadow: var(--shadow-sm); backdrop-filter: none; }
+[data-theme="light"] .wrap::before { display: none; }
+[data-theme="light"] .modeTabs { background: var(--bg-form); border-color: var(--border-default); }
+[data-theme="light"] .modeTab { color: var(--text-400); }
+[data-theme="light"] .modeTab:hover { color: var(--text-200); }
+[data-theme="light"] .modeTabActive { background: color-mix(in srgb, var(--mc, var(--violet)) 10%, var(--bg-elevated)); box-shadow: none; }
+[data-theme="light"] .resetBtn { background: var(--bg-form); border-color: var(--border-default); color: var(--text-300); }
+[data-theme="light"] .resetBtn:hover { background: var(--border-subtle); border-color: var(--border-strong); }
+[data-theme="light"] .playBtn { background: color-mix(in srgb, var(--mc, var(--violet)) 10%, var(--bg-elevated)); border-color: color-mix(in srgb, var(--mc, var(--violet)) 22%, var(--border-default)); }
+[data-theme="light"] .playBtn:hover { background: color-mix(in srgb, var(--mc, var(--violet)) 16%, var(--bg-elevated)); }
+[data-theme="light"] .pauseBtn { background: rgba(244,63,94,0.07); border-color: rgba(244,63,94,0.20); }
+[data-theme="light"] .sessions { border-top-color: var(--border-subtle); }
+[data-theme="light"] .dot { background: var(--border-default); border-color: var(--border-default); }

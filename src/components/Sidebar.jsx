@@ -1,4 +1,5 @@
-// Sidebar.jsx — Premium animated sidebar with sections + theme toggle
+// Sidebar.jsx — Premium animated sidebar with mobile drawer support
+import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '../context/ThemeContext'
 import styles from './Sidebar.module.css'
@@ -14,24 +15,56 @@ const NAV_TOOLS = [
   { id: 'analytics', label: 'Analytics',   icon: ChartIcon },
 ]
 
+function useIsMobile() {
+  if (typeof window === 'undefined') return false
+  return window.innerWidth <= 768
+}
+
 export default function Sidebar({ view, setView, stats, collapsed, setCollapsed }) {
   const { theme, toggle: toggleTheme } = useTheme()
 
+  // On mobile, close sidebar when navigating
+  const handleNavClick = (id) => {
+    setView(id)
+    if (window.innerWidth <= 768) {
+      setCollapsed(true)
+    }
+  }
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'Escape' && !collapsed) setCollapsed(true)
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [collapsed, setCollapsed])
+
+  // On desktop, collapsed means icon-only. On mobile, collapsed means hidden drawer.
+  const isMobileCollapsed = typeof window !== 'undefined' && window.innerWidth <= 768 && collapsed
+
   return (
     <>
-      {/* Mobile overlay */}
+      {/* Mobile overlay — shown when sidebar is open on mobile */}
       <AnimatePresence>
         {!collapsed && (
-          <motion.div className={styles.overlay}
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={() => setCollapsed(true)} />
+          <motion.div
+            className={styles.overlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setCollapsed(true)}
+            aria-label="Close sidebar"
+          />
         )}
       </AnimatePresence>
 
       <motion.aside
-        className={styles.sidebar}
-        animate={{ width: collapsed ? 68 : 260 }}
+        className={`${styles.sidebar} ${isMobileCollapsed ? styles.sidebarCollapsed : ''}`}
+        animate={{ width: collapsed && window.innerWidth > 768 ? 68 : 260 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        style={isMobileCollapsed ? { transform: 'translateX(-100%)' } : {}}
       >
         {/* Brand */}
         <div className={styles.brand}>
@@ -51,7 +84,7 @@ export default function Sidebar({ view, setView, stats, collapsed, setCollapsed 
           <motion.button className={styles.collapseBtn}
             onClick={() => setCollapsed(v => !v)}
             whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-            aria-label={collapsed ? 'Expand' : 'Collapse'}>
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
             <motion.div animate={{ rotate: collapsed ? 180 : 0 }} transition={{ duration: 0.3 }}>
               <ChevronLeftIcon />
             </motion.div>
@@ -61,21 +94,31 @@ export default function Sidebar({ view, setView, stats, collapsed, setCollapsed 
         <div className={styles.divider} />
 
         {/* Main nav */}
-        <nav className={styles.nav}>
+        <nav className={styles.nav} aria-label="Main navigation">
           {!collapsed && <span className={styles.navSection}>MAIN</span>}
-          {NAV_MAIN.map((item, i) => (
-            <NavButton key={item.id} item={item} active={view === item.id}
-              onClick={() => setView(item.id)} collapsed={collapsed}
-              badge={item.id === 'tasks' && stats.active > 0 ? stats.active : null}
-              delay={i * 0.04} />
+          {NAV_MAIN.map((navItem, i) => (
+            <NavButton
+              key={navItem.id}
+              item={navItem}
+              active={view === navItem.id}
+              onClick={() => handleNavClick(navItem.id)}
+              collapsed={collapsed}
+              badge={navItem.id === 'tasks' && stats.active > 0 ? stats.active : null}
+              delay={i * 0.04}
+            />
           ))}
 
           {!collapsed && <span className={styles.navSection} style={{ marginTop: 12 }}>TOOLS</span>}
           {collapsed && <div className={styles.divider} style={{ margin: '8px 0' }} />}
-          {NAV_TOOLS.map((item, i) => (
-            <NavButton key={item.id} item={item} active={view === item.id}
-              onClick={() => setView(item.id)} collapsed={collapsed}
-              delay={(NAV_MAIN.length + i) * 0.04} />
+          {NAV_TOOLS.map((navItem, i) => (
+            <NavButton
+              key={navItem.id}
+              item={navItem}
+              active={view === navItem.id}
+              onClick={() => handleNavClick(navItem.id)}
+              collapsed={collapsed}
+              delay={(NAV_MAIN.length + i) * 0.04}
+            />
           ))}
         </nav>
 
@@ -111,7 +154,7 @@ export default function Sidebar({ view, setView, stats, collapsed, setCollapsed 
           <motion.button
             className={styles.themeBtn}
             onClick={toggleTheme}
-            whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
             title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             <span className={styles.themeIcon}>{theme === 'dark' ? '☀️' : '🌙'}</span>
@@ -153,10 +196,14 @@ function NavButton({ item, active, onClick, collapsed, badge, delay }) {
       id={`nav-${item.id}`}
       className={`${styles.navItem} ${active ? styles.navActive : ''}`}
       onClick={onClick}
-      whileHover={{ x: 3 }} whileTap={{ scale: 0.97 }}
-      initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+      whileHover={{ x: collapsed ? 0 : 3 }}
+      whileTap={{ scale: 0.97 }}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
       transition={{ delay }}
       title={collapsed ? item.label : ''}
+      aria-label={item.label}
+      aria-current={active ? 'page' : undefined}
     >
       {active && (
         <motion.div className={styles.activeIndicator} layoutId="activeNav"

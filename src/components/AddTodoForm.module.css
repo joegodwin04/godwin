@@ -1,4 +1,4 @@
-/* AddTodoForm.module.css — Premium task creation form */
+/* AddTodoForm.module.css — Premium task creation form — Light + Dark v4 */
 
 .wrap {
   background: var(--bg-glass);
@@ -7,11 +7,12 @@
   backdrop-filter: blur(18px);
   transition: border-color 0.3s, box-shadow 0.3s;
   overflow: hidden;
+  box-shadow: var(--shadow-xs);
 }
 
 .wrap.expanded {
   border-color: rgba(124,106,247,0.35);
-  box-shadow: 0 0 0 1px rgba(124,106,247,0.15), 0 0 40px rgba(124,106,247,0.12);
+  box-shadow: 0 0 0 1px rgba(124,106,247,0.15), 0 8px 30px rgba(124,106,247,0.14);
 }
 
 /* ── Main input row ── */
@@ -82,7 +83,7 @@
   flex-direction: column;
   gap: 18px;
   animation: fadeUp 0.22s var(--ease-out) both;
-  background: rgba(0,0,0,0.12);
+  background: rgba(0,0,0,0.10);
 }
 
 .optionGroup { display: flex; flex-direction: column; gap: 9px; }
@@ -103,8 +104,8 @@
 .priorityBtn, .categoryBtn {
   padding: 6px 14px;
   border-radius: var(--r-full);
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-glass);
   color: var(--text-300);
   font-size: 12px;
   font-family: inherit;
@@ -114,6 +115,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  min-height: 32px;
 }
 
 .priorityBtn:hover {
@@ -148,7 +150,7 @@
 .grow { flex: 1; }
 
 .dateInput, .notesInput {
-  background: rgba(255,255,255,0.04);
+  background: var(--bg-input);
   border: 1px solid var(--border-subtle);
   border-radius: var(--r-sm);
   padding: 9px 13px;
@@ -159,13 +161,71 @@
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   width: 100%;
 }
-.dateInput::-webkit-calendar-picker-indicator { filter: invert(0.65); cursor: pointer; }
+.dateInput::-webkit-calendar-picker-indicator { cursor: pointer; }
 .dateInput:focus, .notesInput:focus {
   border-color: var(--border-focus);
-  background: rgba(255,255,255,0.06);
-  box-shadow: 0 0 0 3px rgba(124,106,247,0.1);
+  background: var(--bg-glass-md);
+  box-shadow: 0 0 0 3px rgba(124,106,247,0.10);
 }
-.notesInput::placeholder { color: var(--text-500); }
+.notesInput::placeholder { color: var(--text-400); }
+
+/* ============================================================
+   LIGHT MODE OVERRIDES
+   ============================================================ */
+[data-theme="light"] .wrap {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(124, 106, 247, 0.14);
+  box-shadow: 0 2px 12px rgba(124,106,247,0.09), 0 1px 3px rgba(0,0,0,0.04);
+}
+[data-theme="light"] .wrap.expanded {
+  border-color: rgba(124,106,247,0.32);
+  box-shadow: 0 0 0 1px rgba(124,106,247,0.12), 0 8px 28px rgba(124,106,247,0.12);
+}
+[data-theme="light"] .mainInput {
+  color: var(--text-100);
+}
+[data-theme="light"] .options {
+  background: rgba(248, 247, 255, 0.80);
+  border-top-color: rgba(124, 106, 247, 0.12);
+}
+[data-theme="light"] .priorityBtn,
+[data-theme="light"] .categoryBtn {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(124, 106, 247, 0.16);
+  color: var(--text-300);
+}
+[data-theme="light"] .categoryBtn:hover {
+  background: rgba(124, 106, 247, 0.06);
+  color: var(--text-200);
+}
+[data-theme="light"] .dateInput,
+[data-theme="light"] .notesInput {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(124, 106, 247, 0.16);
+  color: var(--text-100);
+}
+[data-theme="light"] .dateInput::-webkit-calendar-picker-indicator {
+  filter: none;
+  opacity: 0.6;
+}
+[data-theme="light"] .dateInput:focus,
+[data-theme="light"] .notesInput:focus {
+  background: #fff;
+  border-color: var(--border-focus);
+}
+[data-theme="light"] .cancelBtn {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(124, 106, 247, 0.18);
+  color: var(--text-300);
+}
+[data-theme="light"] .cancelBtn:hover {
+  background: rgba(124, 106, 247, 0.06);
+  color: var(--text-200);
+  border-color: rgba(124, 106, 247, 0.28);
+}
+[data-theme="light"] .clearBtn:hover {
+  background: rgba(124, 106, 247, 0.07);
+}
 
 /* ── Action buttons ── */
 .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }

@@ -1,6 +1,7 @@
 // PomodoroTimer.jsx — Focus ring timer with work/break modes
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePomodoro } from '../hooks/usePomodoro'
+import { useTheme } from '../context/ThemeContext'
 import styles from './PomodoroTimer.module.css'
 
 const MODE_META = {
@@ -9,25 +10,41 @@ const MODE_META = {
   long:  { label: 'Long Break',   color: '#22d3ee', glow: 'rgba(34,211,238,0.4)',  emoji: '🌿' },
 }
 
-function Ring({ progress, color, glow, size = 160 }) {
+function Ring({ progress, color, glow, size = 160, theme }) {
   const r = size / 2 - 12
   const circ = 2 * Math.PI * r
   const dash = circ * progress
 
+  // Theme-aware track color
+  const trackColor = theme === 'light'
+    ? 'rgba(124,106,247,0.10)'
+    : 'rgba(255,255,255,0.06)'
+
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ filter: `drop-shadow(0 0 18px ${glow})` }}>
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      style={{ filter: `drop-shadow(0 0 18px ${glow})` }}
+    >
       {/* Track */}
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
+      <circle
+        cx={size/2} cy={size/2} r={r}
+        fill="none"
+        stroke={trackColor}
+        strokeWidth="10"
+      />
       {/* Progress */}
       <circle
         cx={size/2} cy={size/2} r={r} fill="none"
-        stroke={`url(#pgr)`} strokeWidth="10" strokeLinecap="round"
+        stroke={`url(#pgr-${color.replace('#', '')})`}
+        strokeWidth="10" strokeLinecap="round"
         strokeDasharray={`${dash} ${circ}`}
         transform={`rotate(-90 ${size/2} ${size/2})`}
         style={{ transition: 'stroke-dasharray 1s cubic-bezier(0.16,1,0.3,1)' }}
       />
       <defs>
-        <linearGradient id="pgr" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id={`pgr-${color.replace('#', '')}`} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor={color} />
           <stop offset="100%" stopColor={color === '#7c6af7' ? '#a78bfa' : color} />
         </linearGradient>
@@ -38,6 +55,7 @@ function Ring({ progress, color, glow, size = 160 }) {
 
 export default function PomodoroTimer({ compact = false }) {
   const { mode, running, sessions, progress, mm, ss, toggle, reset, switchMode } = usePomodoro()
+  const { theme } = useTheme()
   const meta = MODE_META[mode]
 
   return (
@@ -56,7 +74,13 @@ export default function PomodoroTimer({ compact = false }) {
 
       {/* Ring + time */}
       <div className={styles.ringWrap}>
-        <Ring progress={progress} color={meta.color} glow={meta.glow} size={compact ? 130 : 160} />
+        <Ring
+          progress={progress}
+          color={meta.color}
+          glow={meta.glow}
+          size={compact ? 130 : 160}
+          theme={theme}
+        />
         <div className={styles.ringCenter}>
           <AnimatePresence mode="wait">
             <motion.span
@@ -80,7 +104,8 @@ export default function PomodoroTimer({ compact = false }) {
           onClick={reset}
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.92 }}
-          title="Reset"
+          title="Reset timer"
+          aria-label="Reset timer"
         >
           <ResetIcon />
         </motion.button>
@@ -88,9 +113,10 @@ export default function PomodoroTimer({ compact = false }) {
         <motion.button
           className={`${styles.playBtn} ${running ? styles.pauseBtn : ''}`}
           onClick={toggle}
-          whileHover={{ scale: 1.06 }}
-          whileTap={{ scale: 0.94 }}
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.96 }}
           style={{ '--mc': meta.color, '--mg': meta.glow }}
+          aria-label={running ? 'Pause timer' : 'Start timer'}
         >
           {running ? <PauseIcon /> : <PlayIcon />}
           {running ? 'Pause' : 'Start'}
